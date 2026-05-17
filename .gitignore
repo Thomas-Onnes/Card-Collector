@@ -1,0 +1,34 @@
+# IntelliJ
+.idea/
+*.iml
+
+# Kotlin / Gradle
+.gradle/
+.kotlin/
+build/
+out/
+
+# Backend
+backend/.gradle/
+backend/.kotlin/
+backend/build/
+backend/out/
+
+# Environment variables
+.env
+.env.*
+!.env.example
+
+# Temporary files
+*.tmp
+*.temp
+
+# Local environment files
+local.properties
+
+# OS files
+.ds_Store
+Thumbs.db
+
+# Logs
+*.log

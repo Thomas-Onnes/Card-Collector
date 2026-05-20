@@ -1,5 +1,6 @@
 package models
 
+import models.enums.CurrencyCode
 import models.enums.Rarity
 import java.time.LocalDateTime
 
@@ -13,7 +14,7 @@ data class Card(
     val rarity: Rarity,
     val imageUrl: String,
     val price: Double,
-    val currency: String,
+    val currency: CurrencyCode,
     val rawJson: String?,
     val createdAt: LocalDateTime,
     val updatedAt: LocalDateTime

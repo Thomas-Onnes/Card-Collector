@@ -3,7 +3,7 @@ CREATE TABLE user_cards (
     user_id INTEGER NOT NULL,
     card_id INTEGER NOT NULL,
     quantity INTEGER NOT NULL,
-    condition VARCHAR(200) NOT NULL,
+    card_condition VARCHAR(200) NOT NULL,
     is_foil BOOLEAN NOT NULL DEFAULT FALSE,
     language VARCHAR(200) NOT NULL,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,

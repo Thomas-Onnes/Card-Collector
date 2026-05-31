@@ -2,7 +2,6 @@ package database
 
 import java.nio.file.Path
 import java.sql.Connection
-import java.sql.Statement
 import kotlin.io.path.listDirectoryEntries
 import kotlin.io.path.readText
 
@@ -17,11 +16,18 @@ class MigrationRunner(
 
         for (migration in migrations) {
             println("Running: ${migration.fileName}")
-            val sql = readMigrationFile(migration)
-            println("SQL: $sql")
-            executeMigration(sql)
+            try {
+                val sql = readMigrationFile(migration)
+                executeMigration(sql)
+                println("Migration succescful")
+            } catch (e: Exception) {
+                if (e.message?.contains("already exists") == true) {
+                    println("Migration skipped: table already exists")
+                } else {
+                    throw e
+                }
+            }
         }
-
     }
 
     private fun getMigrationFiles(): List<Path> {

@@ -14,4 +14,7 @@ object Environment {
 
     val dbPassword: String =
         dotenv["DB_PASSWORD"]
+
+    val dbSeed: String? =
+        dotenv["SEED_DATABASE"]
 }

@@ -1,5 +1,7 @@
+import config.Environment.dbSeed
 import core.App
 import database.DatabaseConnection
+import database.DatabaseSeeder
 import database.MigrationRunner
 
 fun main() {
@@ -9,6 +11,10 @@ fun main() {
     try {
         val migrationRunner = MigrationRunner(connection)
         migrationRunner.run()
+        if (dbSeed.equals("true")) {
+            val databaseSeeder = DatabaseSeeder(connection)
+            databaseSeeder.run()
+        }
     } catch (e: Exception) {
         e.printStackTrace()
     }

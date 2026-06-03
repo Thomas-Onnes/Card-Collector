@@ -1,6 +1,7 @@
 package services
 
 import models.RegisterRequest
+import models.LoginRequest
 import models.User
 import repositories.UserRepository
 import security.PasswordHasher

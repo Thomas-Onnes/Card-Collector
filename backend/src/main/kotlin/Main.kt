@@ -20,6 +20,7 @@ fun main() {
     }
     println("Card Collector Backend Running")
     App().start()
-
+    println("Calling database for information")
     connection.close()
+    println(System.getProperty("user.dir"))
 }

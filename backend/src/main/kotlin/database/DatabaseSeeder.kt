@@ -1,5 +1,6 @@
 package database
 
+import config.PathConfig
 import java.nio.file.Path
 import java.sql.Connection
 import kotlin.io.path.listDirectoryEntries
@@ -8,7 +9,7 @@ import kotlin.io.path.readText
 class DatabaseSeeder(
     private val databaseConnection: Connection
 ) {
-    private val seedPath = "backend/src/main/resources/database/seeds"
+    private val seedPath = "${PathConfig.resourcePath}/database/seeds"
 
     fun run() {
         val seeds = getSeedFiles()

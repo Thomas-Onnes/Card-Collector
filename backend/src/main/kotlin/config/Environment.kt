@@ -4,7 +4,10 @@ import io.github.cdimascio.dotenv.dotenv
 
 object Environment {
 
-    private val dotenv = dotenv{directory = "./backend"}
+    private val dotenv = dotenv{
+        directory = "."
+        filename = ".env"
+    }
 
     val dbUrl: String =
         dotenv["DB_URL"]

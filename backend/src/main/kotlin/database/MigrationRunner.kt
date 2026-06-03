@@ -1,5 +1,6 @@
 package database
 
+import config.PathConfig
 import java.nio.file.Path
 import java.sql.Connection
 import kotlin.io.path.listDirectoryEntries
@@ -8,7 +9,7 @@ import kotlin.io.path.readText
 class MigrationRunner(
     private val databaseConnection: Connection
 ) {
-    private val migrationPath = "backend/src/main/resources/database/migrations"
+    private val migrationPath = "${PathConfig.resourcePath}/database/migrations"
 
     fun run() {
         val migrations = getMigrationFiles()

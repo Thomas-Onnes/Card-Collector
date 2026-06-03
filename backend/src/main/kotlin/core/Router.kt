@@ -1,9 +1,13 @@
 package core
 
 import controllers.CardController
+import controllers.UserCardController
+import controllers.UserController
 
 class Router(
-    private val cardController: CardController
+    private val userController: UserController,
+    private val cardController: CardController,
+    private val userCardController: UserCardController
 ) {
 
     fun handle(request: Request): Response {
@@ -14,6 +18,24 @@ class Router(
                 Response(
                     statusCode = 200,
                     body = cardController.getCards()
+                )
+            }
+
+            request.method == "GET" &&
+                    request.path == "/api/users" -> {
+
+                Response(
+                    statusCode = 200,
+                    body = userController.getUsers()
+                )
+            }
+
+            request.method == "GET" &&
+                    request.path == "/api/usercards" -> {
+
+                Response(
+                    statusCode = 200,
+                    body = userCardController.getUserCards()
                 )
             }
 

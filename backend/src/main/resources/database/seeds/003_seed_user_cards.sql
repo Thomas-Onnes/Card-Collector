@@ -4,7 +4,7 @@ INSERT INTO user_cards(
           1,
           1,
           1,
-          'clean',
+          'MINT',
           TRUE,
           'English'
          )

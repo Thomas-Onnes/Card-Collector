@@ -3,55 +3,36 @@ package repositories
 import models.Card
 import models.enums.CurrencyCode
 import models.enums.Rarity
-import java.time.LocalDateTime
+import java.sql.Connection
 
-class CardRepository {
+class CardRepository(
+    private val databaseConnection: Connection
+) {
+
+    private val findAllQuery = "SELECT * FROM cards"
 
     fun findAll(): List<Card> {
-        return listOf(
-            Card(
-                id = 1,
-                gameType = "Pokemon",
-                externalApiId = "tcgdex",
-                name = "Charizard",
-                setCode = "151",
-                collectorNumber = "3",
-                rarity = Rarity.RARE,
-                imageUrl = "filler",
-                price = 100.00,
-                currency = CurrencyCode.EUR,
-                rawJson = "json",
-                createdAt = LocalDateTime.now(),
-                updatedAt = LocalDateTime.now()
-            ), Card(
-                id = 1,
-                gameType = "Pokemon",
-                externalApiId = "tcgdex",
-                name = "Blastoise",
-                setCode = "151",
-                collectorNumber = "2",
-                rarity = Rarity.RARE,
-                imageUrl = "filler",
-                price = 90.00,
-                currency = CurrencyCode.EUR,
-                rawJson = "json",
-                createdAt = LocalDateTime.now(),
-                updatedAt = LocalDateTime.now()
-            ), Card(
-                id = 1,
-                gameType = "Pokemon",
-                externalApiId = "tcgdex",
-                name = "Venusaur",
-                setCode = "151",
-                collectorNumber = "5",
-                rarity = Rarity.RARE,
-                imageUrl = "filler",
-                price = 100.00,
-                currency = CurrencyCode.EUR,
-                rawJson = "json",
-                createdAt = LocalDateTime.now(),
-                updatedAt = LocalDateTime.now()
+        val statement = databaseConnection.createStatement()
+        val result = statement.executeQuery(findAllQuery)
+        val cards  = arrayListOf<Card>()
+        while(result.next()) {
+            val card = Card(
+                result.getInt("id"),
+                result.getString("game_type"),
+                result.getString("external_api_id"),
+                result.getString("name"),
+                result.getString("set_code"),
+                result.getString("collector_number"),
+                Rarity.valueOf(result.getString("rarity")),
+                result.getString("image_url"),
+                result.getDouble("price"),
+                CurrencyCode.valueOf(result.getString("currency")),
+                result.getString("raw_json"),
+                result.getTimestamp("created_at").toLocalDateTime(),
+                result.getTimestamp("updated_at").toLocalDateTime()
             )
-        )
+            cards.add(card)
+        }
+        return cards
     }
 }

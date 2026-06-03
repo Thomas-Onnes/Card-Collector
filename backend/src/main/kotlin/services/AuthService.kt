@@ -46,4 +46,28 @@ class AuthService(
 
         userRepository.createUser(user)
     }
+
+    fun login(request: LoginRequest): User {
+
+        // ?: means if result returns null throw exception
+        val user =
+            userRepository.findByUsername(
+                request.username
+            ) ?: throw Exception(
+                "Username or password is incorrect"
+            )
+
+        if (
+            !PasswordHasher.verify(
+                request.password,
+                user.passwordHashed
+            )
+        ) {
+            throw Exception(
+                "Username or password is incorrect"
+            )
+        }
+
+        return user
+    }
 }

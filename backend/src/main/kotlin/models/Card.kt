@@ -1,6 +1,5 @@
 package models
 
-import models.enums.Rarity
 import java.time.LocalDateTime
 
 data class Card(

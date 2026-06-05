@@ -1,6 +1,6 @@
 CREATE TABLE pokemon_cards (
     card_id INTEGER PRIMARY KEY,
-    hp integer NOT NULL,
+    hp integer,
     rarity varchar(200) NOT NULL,
     types varchar(200) NOT NULL,
     evolves_from varchar(200),

@@ -3,6 +3,7 @@ import core.App
 import database.DatabaseConnection
 import database.DatabaseSeeder
 import database.MigrationRunner
+import external.tcgdex.TcgDexClient
 
 fun main() {
     val connection = DatabaseConnection.getConnection()
@@ -23,4 +24,7 @@ fun main() {
     println("Calling database for information")
     connection.close()
     println(System.getProperty("user.dir"))
+    println("Trying new API client")
+    val tcgDexClient = TcgDexClient()
+    println(tcgDexClient.getCard("swsh3-136"))
 }

@@ -4,19 +4,13 @@ import java.sql.Connection
 import java.sql.DriverManager
 
 object Database {
+    private val URL = System.getenv("DB_URL")
 
-    private const val URL =
-        "jdbc:postgresql://database:5432/card_collector"
+    private val USER = System.getenv("DB_USER")
 
-    private const val USER = "admin"
-    private const val PASSWORD = "ccDB1!"
+    private val PASSWORD = System.getenv("DB_PASSWORD")
 
     fun connect(): Connection {
-
-        return DriverManager.getConnection(
-            URL,
-            USER,
-            PASSWORD
-        )
+        return DriverManager.getConnection(URL, USER, PASSWORD)
     }
 }

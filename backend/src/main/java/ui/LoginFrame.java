@@ -13,16 +13,14 @@ import java.net.URL;
 import java.nio.charset.StandardCharsets;
 import java.util.stream.Collectors;
 
-public class RegisterFrame extends JFrame {
+public class LoginFrame extends JFrame {
 
-    private final JTextField usernameField;
     private final JTextField emailField;
     private final JPasswordField passwordField;
-    private final JPasswordField confirmPasswordField;
     private final JLabel statusLabel;
 
-    public RegisterFrame() {
-        setTitle("Card Collector - Sign up");
+    public LoginFrame() {
+        setTitle("Card Collector - Login");
         setSize(1000, 650);
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         setLocationRelativeTo(null);
@@ -36,101 +34,81 @@ public class RegisterFrame extends JFrame {
         titleLabel.setBounds(330, 70, 500, 80);
         mainPanel.add(titleLabel);
 
-        JLabel signupLabel = new JLabel("Sign up");
-        signupLabel.setFont(new Font("Arial", Font.PLAIN, 42));
-        signupLabel.setForeground(Color.WHITE);
-        signupLabel.setBounds(430, 190, 250, 60);
-        mainPanel.add(signupLabel);
-
-        usernameField = new JTextField();
-        usernameField.setFont(new Font("Arial", Font.PLAIN, 20));
-        usernameField.setBounds(365, 270, 300, 40);
-        addPlaceholder(usernameField, "Username");
-        mainPanel.add(usernameField);
+        JLabel loginLabel = new JLabel("Login");
+        loginLabel.setFont(new Font("Arial", Font.PLAIN, 42));
+        loginLabel.setForeground(Color.WHITE);
+        loginLabel.setBounds(450, 190, 200, 60);
+        mainPanel.add(loginLabel);
 
         emailField = new JTextField();
         emailField.setFont(new Font("Arial", Font.PLAIN, 20));
-        emailField.setBounds(365, 340, 300, 40);
+        emailField.setBounds(355, 280, 300, 40);
         addPlaceholder(emailField, "Email");
         mainPanel.add(emailField);
 
         passwordField = new JPasswordField();
         passwordField.setFont(new Font("Arial", Font.PLAIN, 20));
-        passwordField.setBounds(365, 410, 300, 40);
+        passwordField.setBounds(355, 360, 300, 40);
         addPasswordPlaceholder(passwordField, "Password");
         mainPanel.add(passwordField);
-
-        confirmPasswordField = new JPasswordField();
-        confirmPasswordField.setFont(new Font("Arial", Font.PLAIN, 20));
-        confirmPasswordField.setBounds(365, 480, 300, 40);
-        addPasswordPlaceholder(confirmPasswordField, "Confirm Password");
-        mainPanel.add(confirmPasswordField);
 
         statusLabel = new JLabel("");
         statusLabel.setFont(new Font("Arial", Font.PLAIN, 18));
         statusLabel.setForeground(Color.WHITE);
-        statusLabel.setBounds(365, 525, 430, 25);
+        statusLabel.setBounds(355, 415, 400, 30);
         mainPanel.add(statusLabel);
 
         JButton submitButton = new JButton("Submit");
-        submitButton.setFont(new Font("Arial", Font.PLAIN, 30));
+        submitButton.setFont(new Font("Arial", Font.PLAIN, 34));
         submitButton.setBackground(new Color(45, 45, 45));
         submitButton.setForeground(Color.WHITE);
         submitButton.setFocusPainted(false);
-        submitButton.setBounds(420, 550, 170, 65);
-        submitButton.addActionListener(e -> registerUser());
+        submitButton.setBounds(415, 460, 170, 70);
+        submitButton.addActionListener(e -> loginUser());
         mainPanel.add(submitButton);
 
-        JButton backButton = new JButton("Back");
-        backButton.setFont(new Font("Arial", Font.PLAIN, 30));
-        backButton.setBackground(new Color(45, 45, 45));
-        backButton.setForeground(Color.WHITE);
-        backButton.setFocusPainted(false);
-        backButton.setBounds(40, 540, 160, 70);
-        backButton.addActionListener(e -> {
-            new LoginFrame().setVisible(true);
+        JButton forgotButton = new JButton("Forgot password?");
+        forgotButton.setFont(new Font("Arial", Font.PLAIN, 28));
+        forgotButton.setBackground(new Color(45, 45, 45));
+        forgotButton.setForeground(Color.WHITE);
+        forgotButton.setFocusPainted(false);
+        forgotButton.setBounds(330, 560, 350, 55);
+        forgotButton.addActionListener(e ->
+                statusLabel.setText("Password reset komt later.")
+        );
+        mainPanel.add(forgotButton);
+
+        JButton signupButton = new JButton("Sign up");
+        signupButton.setFont(new Font("Arial", Font.PLAIN, 30));
+        signupButton.setBackground(new Color(45, 45, 45));
+        signupButton.setForeground(Color.WHITE);
+        signupButton.setFocusPainted(false);
+        signupButton.setBounds(780, 540, 160, 70);
+        signupButton.addActionListener(e -> {
+            new RegisterFrame().setVisible(true);
             dispose();
         });
-        mainPanel.add(backButton);
+        mainPanel.add(signupButton);
 
         add(mainPanel);
     }
 
-    private void registerUser() {
-        String username = usernameField.getText();
+    private void loginUser() {
         String email = emailField.getText();
-        String password =
-                new String(passwordField.getPassword());
-
-        String confirmPassword =
-                new String(confirmPasswordField.getPassword());
+        String password = new String(passwordField.getPassword());
 
         if (
-                username.isBlank() ||
-                        email.isBlank() ||
+                email.isBlank() ||
                         password.isBlank() ||
-                        confirmPassword.isBlank() ||
-                        username.equals("Username") ||
                         email.equals("Email") ||
-                        password.equals("Password") ||
-                        confirmPassword.equals("Confirm Password")
+                        password.equals("Password")
         ) {
             statusLabel.setText("Vul alle velden in.");
             return;
         }
 
-        if (!password.equals(confirmPassword)) {
-            statusLabel.setText("Wachtwoorden komen niet overeen.");
-            return;
-        }
-
-        if (password.length() < 8) {
-            statusLabel.setText("Wachtwoord moet minimaal 8 tekens zijn.");
-            return;
-        }
-
         try {
-            URL url = new URL("http://localhost:8080/register");
+            URL url = new URL("http://localhost:8080/login");
             HttpURLConnection connection =
                     (HttpURLConnection) url.openConnection();
 
@@ -142,8 +120,7 @@ public class RegisterFrame extends JFrame {
             connection.setDoOutput(true);
 
             String json = String.format(
-                    "{\"username\":\"%s\",\"email\":\"%s\",\"password\":\"%s\"}",
-                    escapeJson(username),
+                    "{\"email\":\"%s\",\"password\":\"%s\"}",
                     escapeJson(email),
                     escapeJson(password)
             );
@@ -159,26 +136,10 @@ public class RegisterFrame extends JFrame {
             String responseBody = readResponse(connection);
 
             if (responseCode >= 200 && responseCode < 300) {
-                statusLabel.setText("Registratie gelukt!");
-
-                JOptionPane.showMessageDialog(
-                        this,
-                        "Account aangemaakt. Je kunt nu inloggen."
-                );
-
-                new LoginFrame().setVisible(true);
+                new LoggedInFrame().setVisible(true);
                 dispose();
-
             } else {
-                if (responseBody.contains("Username already exists")) {
-                    statusLabel.setText("Gebruikersnaam bestaat al.");
-                } else if (responseBody.contains("Email already exists")) {
-                    statusLabel.setText("E-mailadres bestaat al.");
-                } else if (responseBody.contains("Password too short")) {
-                    statusLabel.setText("Wachtwoord moet minimaal 8 tekens zijn.");
-                } else {
-                    statusLabel.setText("Registratie mislukt.");
-                }
+                statusLabel.setText("Email of wachtwoord is onjuist.");
             }
 
             connection.disconnect();
@@ -277,6 +238,12 @@ public class RegisterFrame extends JFrame {
                     field.setForeground(Color.GRAY);
                 }
             }
+        });
+    }
+
+    public static void main(String[] args) {
+        SwingUtilities.invokeLater(() -> {
+            new LoginFrame().setVisible(true);
         });
     }
 }

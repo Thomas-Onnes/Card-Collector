@@ -3,11 +3,11 @@ package api
 import com.google.gson.Gson
 import com.sun.net.httpserver.HttpExchange
 import com.sun.net.httpserver.HttpHandler
+import models.LoginRequest
 import repositories.UserRepository
 import services.AuthService
-import models.*
 
-class AuthHandler : HttpHandler {
+class LoginHandler : HttpHandler {
 
     private val gson = Gson()
 
@@ -19,7 +19,6 @@ class AuthHandler : HttpHandler {
     override fun handle(exchange: HttpExchange) {
 
         if (exchange.requestMethod != "POST") {
-
             exchange.sendResponseHeaders(
                 405,
                 -1
@@ -29,7 +28,6 @@ class AuthHandler : HttpHandler {
         }
 
         try {
-
             val body =
                 exchange.requestBody
                     .bufferedReader()
@@ -38,13 +36,19 @@ class AuthHandler : HttpHandler {
             val request =
                 gson.fromJson(
                     body,
-                    RegisterRequest::class.java
+                    LoginRequest::class.java
                 )
 
-            authService.register(request)
+            val loginResponse =
+                authService.login(request)
 
             val response =
-                """{"message":"User created"}"""
+                gson.toJson(loginResponse)
+
+            exchange.responseHeaders.add(
+                "Content-Type",
+                "application/json"
+            )
 
             exchange.sendResponseHeaders(
                 200,
@@ -57,11 +61,16 @@ class AuthHandler : HttpHandler {
 
         } catch (e: Exception) {
 
-            val response = """{"error":"Registration failed"}"""
+            val response =
+                """{"error":"Invalid credentials"}"""
 
+            exchange.responseHeaders.add(
+                "Content-Type",
+                "application/json"
+            )
 
             exchange.sendResponseHeaders(
-                400,
+                401,
                 response.toByteArray().size.toLong()
             )
 

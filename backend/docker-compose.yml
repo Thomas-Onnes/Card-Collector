@@ -10,6 +10,11 @@ services:
     ports:
       - "8080:8080"
 
+    environment:
+      DB_URL: jdbc:postgresql://database:5432/card_collector
+      DB_USER: admin
+      DB_PASSWORD: ccDB1!
+
     depends_on:
       - database
 

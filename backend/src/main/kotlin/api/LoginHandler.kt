@@ -3,9 +3,9 @@ package api
 import com.google.gson.Gson
 import com.sun.net.httpserver.HttpExchange
 import com.sun.net.httpserver.HttpHandler
-import models.LoginRequest
 import repositories.UserRepository
 import services.AuthService
+import models.LoginRequest
 
 class LoginHandler : HttpHandler {
 

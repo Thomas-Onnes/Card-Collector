@@ -1,5 +1,7 @@
 package external.tcgdex.dto
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties
 
+@JsonIgnoreProperties(ignoreUnknown = true)
 data class TcgDexCardDto (
     val id: String,
     val name: String,
@@ -10,5 +12,5 @@ data class TcgDexCardDto (
     val illustrator: String?,
     val localId: String,
     val image: String?,
-    val st: TcgDexSetDto
+    val set: TcgDexSetDto
 )

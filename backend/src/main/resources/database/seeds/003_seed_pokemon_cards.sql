@@ -7,7 +7,8 @@ INSERT INTO pokemon_cards(
     set_name,
     set_code,
     collector_number,
-    artist
+    artist,
+    raw_json
 ) values (
 1,
 120,
@@ -17,7 +18,8 @@ INSERT INTO pokemon_cards(
 'Scarlet & Voilet 151',
 151,
 '006',
-'Mitsuhiro Arita'
+'Mitsuhiro Arita',
+'json'
 )
 ON CONFLICT (set_code, collector_number)
 DO NOTHING;

@@ -8,6 +8,7 @@ CREATE TABLE pokemon_cards (
     set_code varchar(200) NOT NULL,
     collector_number varchar(200) NOT NULL,
     artist varchar(200),
+    raw_json TEXT,
 
     UNIQUE(set_code, collector_number),
 

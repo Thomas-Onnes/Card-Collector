@@ -9,6 +9,16 @@ class CardRepository(
 ) {
 
     private val findAllQuery = "SELECT * FROM cards"
+    private val saveQuery = """
+    INSERT INTO cards (
+        game_type,
+        external_api_id,
+        name,
+        image_url
+    )
+    VALUES (?, ?, ?, ?)
+    RETURNING id
+""".trimIndent()
 
     fun findAll(): List<Card> {
         val statement = databaseConnection.createStatement()
@@ -21,12 +31,28 @@ class CardRepository(
                 result.getString("external_api_id"),
                 result.getString("name"),
                 result.getString("image_url"),
-                result.getString("raw_json"),
-                result.getTimestamp("created_at").toLocalDateTime(),
-                result.getTimestamp("updated_at").toLocalDateTime()
             )
             cards.add(card)
         }
         return cards
+    }
+
+    fun save(card: Card): Int {
+        val statement = databaseConnection.prepareStatement(saveQuery)
+
+        statement.setString(1, card.gameType)
+        statement.setString(2, card.externalApiId)
+        statement.setString(3, card.name)
+        statement.setString(4, card.imageUrl)
+
+        val result = statement.executeQuery()
+
+        result.next()
+
+        val generatedCardId = result.getInt("id")
+
+        statement.close()
+
+        return generatedCardId
     }
 }

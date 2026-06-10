@@ -1,9 +1,14 @@
-import config.Environment.dbSeed
 import core.App
 import database.DatabaseConnection
-import database.DatabaseSeeder
 import database.MigrationRunner
 import external.tcgdex.TcgDexClient
+import external.tcgdex.mapper.TcgDexCardMapper
+import repositories.CardRepository
+import repositories.PokemonCardRepository
+import services.PokemonCardService
+import config.Environment.dbSeed
+import database.DatabaseSeeder
+
 
 fun main() {
     val connection = DatabaseConnection.getConnection()
@@ -22,9 +27,25 @@ fun main() {
     println("Card Collector Backend Running")
     App().start()
     println("Calling database for information")
-    connection.close()
     println(System.getProperty("user.dir"))
     println("Trying new API client")
-    val tcgDexClient = TcgDexClient()
-    println(tcgDexClient.getCard("swsh3-136"))
+    val mapper = TcgDexCardMapper()
+    val client = TcgDexClient()
+    val cardRepository = CardRepository(connection)
+    val pokemonCardRepository = PokemonCardRepository(connection)
+
+
+    val service = PokemonCardService (
+        client,
+        mapper,
+        cardRepository,
+        pokemonCardRepository
+    )
+
+    service.importCard(
+        "swsh3-136"
+    )
+
+    connection.close()
+
 }

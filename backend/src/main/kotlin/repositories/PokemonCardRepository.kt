@@ -1,7 +1,7 @@
 package repositories
 
 import models.PokemonCard
-import models.enums.Rarity
+import models.enums.PokemonRarity
 import java.sql.Connection
 
 class PokemonCardRepository (
@@ -32,7 +32,7 @@ class PokemonCardRepository (
             val pokemonCard = PokemonCard (
                 result.getInt("card_id"),
                 result.getInt("hp"),
-                Rarity.valueOf(result.getString("rarity")),
+                PokemonRarity.valueOf(result.getString("rarity")),
                 result.getString("types"),
                 result.getString("evolves_from"),
                 result.getString("set_name"),

@@ -12,7 +12,7 @@ INSERT INTO pokemon_cards(
 ) values (
 1,
 120,
-'Rare',
+'RARE',
 'Fire',
 'Charmeleon',
 'Scarlet & Voilet 151',

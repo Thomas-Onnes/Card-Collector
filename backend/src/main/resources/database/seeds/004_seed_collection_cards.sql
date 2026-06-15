@@ -1,15 +1,15 @@
-INSERT INTO user_cards(
-    user_id,
+INSERT INTO collection_cards(
+    collection_id,
     card_id,
     quantity,
     card_condition,
     is_foil,
     language
-) VALUES (
+) values (
 1,
 1,
 1,
 'MINT',
-TRUE,
-'English'
+true,
+'english'
 )

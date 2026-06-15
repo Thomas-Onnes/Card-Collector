@@ -1,3 +1,4 @@
+import config.Environment.dbMigration
 import core.App
 import database.DatabaseConnection
 import database.MigrationRunner
@@ -15,9 +16,13 @@ fun main() {
     println("Database connected")
 
     try {
-        val migrationRunner = MigrationRunner(connection)
-        migrationRunner.run()
+        if (dbMigration.equals("true")) {
+            println("Running migrations")
+            val migrationRunner = MigrationRunner(connection)
+            migrationRunner.run()
+        }
         if (dbSeed.equals("true")) {
+            println("Running seeders")
             val databaseSeeder = DatabaseSeeder(connection)
             databaseSeeder.run()
         }
@@ -25,27 +30,27 @@ fun main() {
         e.printStackTrace()
     }
     println("Card Collector Backend Running")
-    App().start()
-    println("Calling database for information")
-    println(System.getProperty("user.dir"))
-    println("Trying new API client")
-    val mapper = TcgDexCardMapper()
-    val client = TcgDexClient()
-    val cardRepository = CardRepository(connection)
-    val pokemonCardRepository = PokemonCardRepository(connection)
+    App(connection).start()
 
-
-    val service = PokemonCardService (
-        client,
-        mapper,
-        cardRepository,
-        pokemonCardRepository
-    )
-
-    service.importCard(
-        "swsh3-136"
-    )
+//    val mapper = TcgDexCardMapper()
+//    val client = TcgDexClient()
+//    val cardRepository = CardRepository(connection)
+//    val pokemonCardRepository = PokemonCardRepository(connection)
+//
+//
+//    val service = PokemonCardService (
+//        client,
+//        mapper,
+//        cardRepository,
+//        pokemonCardRepository
+//    )
+//
+//    service.importCard(
+//        "swsh3-136"
+//    )
 
     connection.close()
+
+    println("Connection closed")
 
 }

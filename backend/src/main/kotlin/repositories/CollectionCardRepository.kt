@@ -1,22 +1,22 @@
 package repositories
 
-import models.UserCard
+import models.CollectionCard
 import models.enums.CardCondition
 import java.sql.Connection
 
-class UserCardRepository(
+class CollectionCardRepository(
     private val databaseConnection: Connection
 ){
-    private val findAllQuery = "SELECT * FROM user_cards"
+    private val findAllQuery = "SELECT * FROM collection_cards"
 
-    fun findAll(): List<UserCard> {
+    fun findAll(): List<CollectionCard> {
         val statement = databaseConnection.createStatement()
         val result = statement.executeQuery(findAllQuery)
-        val userCards = arrayListOf<UserCard>()
+        val collectionCards = arrayListOf<CollectionCard>()
         while(result.next()) {
-            val userCard = UserCard(
+            val collectionCard = CollectionCard(
                 result.getInt("id"),
-                result.getInt("user_id"),
+                result.getInt("collection_id"),
                 result.getInt("card_id"),
                 result.getInt("quantity"),
                 CardCondition.valueOf(result.getString("card_condition")),
@@ -25,8 +25,8 @@ class UserCardRepository(
                 result.getTimestamp("created_at").toLocalDateTime(),
                 result.getTimestamp("updated_at").toLocalDateTime()
             )
-            userCards.add(userCard)
+            collectionCards.add(collectionCard)
         }
-        return userCards
+        return collectionCards
     }
 }

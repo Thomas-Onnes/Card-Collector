@@ -18,6 +18,10 @@ object Environment {
     val dbPassword: String =
         dotenv["DB_PASSWORD"]
 
+    val dbMigration: String? =
+        dotenv["RUN_MIGRATION"]
+
     val dbSeed: String? =
         dotenv["SEED_DATABASE"]
+
 }

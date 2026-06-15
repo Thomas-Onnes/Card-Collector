@@ -3,7 +3,7 @@ package external.tcgdex.mapper
 import external.tcgdex.dto.TcgDexCardDto
 import models.Card
 import models.PokemonCard
-import models.enums.Rarity
+import models.enums.PokemonRarity
 
 class TcgDexCardMapper {
 
@@ -22,13 +22,13 @@ class TcgDexCardMapper {
         )
     }
 
-    private fun mapRarity(rarity: String?): Rarity {
+    private fun mapRarity(rarity: String?): PokemonRarity {
         return when (rarity?.uppercase()) {
-            "COMMON" -> Rarity.COMMON
-            "UNCOMMON" -> Rarity.UNCOMMON
-            "RARE" -> Rarity.RARE
-            "ULTRA_RARE" -> Rarity.ULTRA_RARE
-            "SECRET_RARE" -> Rarity.SECRET_RARE
+            "COMMON" -> PokemonRarity.COMMON
+            "UNCOMMON" -> PokemonRarity.UNCOMMON
+            "RARE" -> PokemonRarity.RARE
+            "ULTRA_RARE" -> PokemonRarity.ULTRA_RARE
+            "SECRET_RARE" -> PokemonRarity.SECRET_RARE
 
             else -> {
                 throw IllegalStateException("Unknown rarity: $rarity")

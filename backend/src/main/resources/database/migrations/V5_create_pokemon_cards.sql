@@ -9,7 +9,7 @@ CREATE TABLE pokemon_cards (
     collector_number varchar(200) NOT NULL,
     artist varchar(200),
     raw_json TEXT,
-
+    price double precision,
     UNIQUE(set_code, collector_number),
 
     FOREIGN KEY (card_id) REFERENCES cards(id)

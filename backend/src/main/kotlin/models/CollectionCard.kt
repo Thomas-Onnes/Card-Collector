@@ -3,12 +3,12 @@ package models
 import models.enums.CardCondition
 import java.time.LocalDateTime
 
-data class UserCard(
+data class CollectionCard(
     val id: Int,
-    val userId: Int,
+    val collectionId: Int,
     val cardId: Int,
     val quantity: Int,
-    val condition: CardCondition,
+    val cardCondition: CardCondition,
     val isFoil: Boolean,
     val language: String,
     val createdAt: LocalDateTime,

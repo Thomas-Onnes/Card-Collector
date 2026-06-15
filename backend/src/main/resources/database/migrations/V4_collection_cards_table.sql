@@ -1,6 +1,6 @@
-CREATE TABLE user_cards (
+CREATE TABLE collection_cards (
     id INTEGER GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
-    user_id INTEGER NOT NULL,
+    collection_id INTEGER NOT NULL,
     card_id INTEGER NOT NULL,
     quantity INTEGER NOT NULL,
     card_condition VARCHAR(200) NOT NULL,
@@ -9,6 +9,6 @@ CREATE TABLE user_cards (
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
 
-    FOREIGN KEY (user_id) REFERENCES users(id),
+    FOREIGN KEY (collection_id) REFERENCES user_collections(id),
     FOREIGN KEY (card_id) REFERENCES cards(id)
 )

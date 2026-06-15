@@ -23,17 +23,9 @@ class AuthService(
         val email = request.email.trim().lowercase()
         val password = request.password
 
-        if (!InputValidator.isValidUsername(username)) {
-            throw IllegalArgumentException("Invalid username")
-        }
-
-        if (!InputValidator.isValidEmail(email)) {
-            throw IllegalArgumentException("Invalid email format")
-        }
-
-        if (!InputValidator.isValidPassword(password)) {
-            throw IllegalArgumentException("Password must be at least 8 characters")
-        }
+        InputValidator.validateUsername(username)
+        InputValidator.validateEmail(email)
+        InputValidator.validatePassword(password)
 
         val usernameExists = userRepository.findByUsername(username) != null
         val emailExists = userRepository.findByEmail(email) != null
@@ -75,10 +67,11 @@ class AuthService(
         val user = userRepository.findByEmail(email)
         val hashToVerify = user?.passwordHashed ?: DUMMY_PASSWORD_HASH
 
-        val passwordMatches = PasswordHasher.verify(
-            password,
-            hashToVerify
-        )
+        val passwordMatches =
+            PasswordHasher.verify(
+                password,
+                hashToVerify
+            )
 
         if (user == null || !passwordMatches) {
             LoginRateLimiter.recordFailure(limiterKey)
@@ -87,11 +80,12 @@ class AuthService(
 
         LoginRateLimiter.recordSuccess(limiterKey)
 
-        val token = TokenService.generateToken(
-            userId = user.id,
-            username = user.username,
-            email = user.email
-        )
+        val token =
+            TokenService.createSession(
+                userId = user.id,
+                username = user.username,
+                email = user.email
+            )
 
         return LoginResponse(
             message = "Login successful",

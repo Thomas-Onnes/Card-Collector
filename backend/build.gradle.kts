@@ -21,6 +21,7 @@ kotlin {
 
 dependencies {
     implementation(kotlin("stdlib"))
+
     implementation("org.postgresql:postgresql:42.7.3")
     implementation("com.google.code.gson:gson:2.10.1")
     implementation("de.mkammerer:argon2-jvm:2.12")

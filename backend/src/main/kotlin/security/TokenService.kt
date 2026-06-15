@@ -8,37 +8,44 @@ import java.util.concurrent.ConcurrentHashMap
 object TokenService {
 
     private const val TOKEN_BYTES = 32
-    private const val EXPIRATION_MILLIS = 60 * 60 * 1000L
+    private const val SESSION_EXPIRATION_MILLIS = 60 * 60 * 1000L
 
     private val secureRandom = SecureRandom()
-    private val sessions = ConcurrentHashMap<String, Session>()
 
-    data class Session(
+    private val sessions =
+        ConcurrentHashMap<String, UserSession>()
+
+    data class UserSession(
         val userId: Int,
         val username: String,
         val email: String,
         val expiresAt: Long
     )
 
-    fun generateToken(userId: Int, username: String, email: String): String {
+    fun createSession(
+        userId: Int,
+        username: String,
+        email: String
+    ): String {
         val tokenBytes = ByteArray(TOKEN_BYTES)
         secureRandom.nextBytes(tokenBytes)
 
-        val token = Base64.getUrlEncoder()
-            .withoutPadding()
-            .encodeToString(tokenBytes)
+        val token =
+            Base64.getUrlEncoder()
+                .withoutPadding()
+                .encodeToString(tokenBytes)
 
-        sessions[token] = Session(
+        sessions[token] = UserSession(
             userId = userId,
             username = username,
             email = email,
-            expiresAt = Instant.now().toEpochMilli() + EXPIRATION_MILLIS
+            expiresAt = Instant.now().toEpochMilli() + SESSION_EXPIRATION_MILLIS
         )
 
         return token
     }
 
-    fun validateToken(token: String?): Session? {
+    fun validateToken(token: String?): UserSession? {
         if (token.isNullOrBlank()) {
             return null
         }

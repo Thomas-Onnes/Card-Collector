@@ -42,9 +42,15 @@ class AuthHandler : HttpHandler {
         } catch (e: IllegalArgumentException) {
             val allowedErrors = setOf(
                 "Request body too large",
-                "Invalid username",
+                "Username is required",
+                "Username must be at least 3 characters",
+                "Username may not be longer than 30 characters",
+                "Username may only contain letters, numbers and _",
+                "Email is required",
+                "Email is too long",
                 "Invalid email format",
                 "Password must be at least 8 characters",
+                "Password may not be longer than 128 characters",
                 "Username already exists",
                 "Email already exists"
             )

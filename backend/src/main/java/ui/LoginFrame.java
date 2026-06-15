@@ -11,6 +11,7 @@ import java.io.OutputStream;
 import java.net.HttpURLConnection;
 import java.net.URL;
 import java.nio.charset.StandardCharsets;
+import java.util.Arrays;
 import java.util.stream.Collectors;
 
 public class LoginFrame extends JFrame {
@@ -55,7 +56,7 @@ public class LoginFrame extends JFrame {
         statusLabel = new JLabel("");
         statusLabel.setFont(new Font("Arial", Font.PLAIN, 18));
         statusLabel.setForeground(Color.WHITE);
-        statusLabel.setBounds(355, 415, 400, 30);
+        statusLabel.setBounds(355, 415, 500, 30);
         mainPanel.add(statusLabel);
 
         JButton submitButton = new JButton("Submit");
@@ -74,7 +75,7 @@ public class LoginFrame extends JFrame {
         forgotButton.setFocusPainted(false);
         forgotButton.setBounds(330, 560, 350, 55);
         forgotButton.addActionListener(e ->
-                statusLabel.setText("Password reset komt later.")
+                statusLabel.setText("Password reset will be added later.")
         );
         mainPanel.add(forgotButton);
 
@@ -94,21 +95,24 @@ public class LoginFrame extends JFrame {
     }
 
     private void loginUser() {
-        String email = emailField.getText();
-        String password = new String(passwordField.getPassword());
-
-        if (
-                email.isBlank() ||
-                        password.isBlank() ||
-                        email.equals("Email") ||
-                        password.equals("Password")
-        ) {
-            statusLabel.setText("Vul alle velden in.");
-            return;
-        }
+        String email = emailField.getText().trim();
+        char[] passwordChars = passwordField.getPassword();
 
         try {
-            URL url = new URL("http://localhost:8080/login");
+            String password = new String(passwordChars);
+
+            if (
+                    email.isBlank() ||
+                            password.isBlank() ||
+                            email.equals("Email") ||
+                            password.equals("Password")
+            ) {
+                statusLabel.setText("Please fill in all fields.");
+                return;
+            }
+
+            URL url = new URL(AppConfig.endpoint("/login"));
+
             HttpURLConnection connection =
                     (HttpURLConnection) url.openConnection();
 
@@ -136,17 +140,44 @@ public class LoginFrame extends JFrame {
             String responseBody = readResponse(connection);
 
             if (responseCode >= 200 && responseCode < 300) {
-                new LoggedInFrame().setVisible(true);
+                String token = extractJsonValue(responseBody, "token");
+                String username = extractJsonValue(responseBody, "username");
+                String userIdText = extractJsonValue(responseBody, "userId");
+                String userEmail = extractJsonValue(responseBody, "email");
+
+                if (
+                        token.isBlank() ||
+                                username.isBlank() ||
+                                userIdText.isBlank() ||
+                                userEmail.isBlank()
+                ) {
+                    statusLabel.setText("Invalid login response.");
+                    return;
+                }
+
+                ClientSession session =
+                        new ClientSession(
+                                token,
+                                Integer.parseInt(userIdText),
+                                username,
+                                userEmail
+                        );
+
+                new LoggedInFrame(session).setVisible(true);
                 dispose();
+
             } else {
-                statusLabel.setText("Email of wachtwoord is onjuist.");
+                statusLabel.setText("Email or password is incorrect.");
             }
 
             connection.disconnect();
 
         } catch (Exception ex) {
-            statusLabel.setText("Kan backend niet bereiken.");
+            statusLabel.setText("Could not reach backend.");
             ex.printStackTrace();
+
+        } finally {
+            Arrays.fill(passwordChars, '\0');
         }
     }
 
@@ -185,7 +216,68 @@ public class LoginFrame extends JFrame {
     private String escapeJson(String value) {
         return value
                 .replace("\\", "\\\\")
-                .replace("\"", "\\\"");
+                .replace("\"", "\\\"")
+                .replace("\n", "\\n")
+                .replace("\r", "\\r");
+    }
+
+    private String extractJsonValue(String json, String key) {
+        String searchKey = "\"" + key + "\":";
+
+        int keyIndex = json.indexOf(searchKey);
+
+        if (keyIndex == -1) {
+            return "";
+        }
+
+        int valueStart = keyIndex + searchKey.length();
+
+        while (
+                valueStart < json.length() &&
+                        Character.isWhitespace(json.charAt(valueStart))
+        ) {
+            valueStart++;
+        }
+
+        if (valueStart >= json.length()) {
+            return "";
+        }
+
+        if (json.charAt(valueStart) == '"') {
+            valueStart++;
+
+            StringBuilder result = new StringBuilder();
+            boolean escaping = false;
+
+            for (int i = valueStart; i < json.length(); i++) {
+                char c = json.charAt(i);
+
+                if (escaping) {
+                    result.append(c);
+                    escaping = false;
+                } else if (c == '\\') {
+                    escaping = true;
+                } else if (c == '"') {
+                    return result.toString();
+                } else {
+                    result.append(c);
+                }
+            }
+
+            return "";
+        }
+
+        int valueEnd = valueStart;
+
+        while (
+                valueEnd < json.length() &&
+                        json.charAt(valueEnd) != ',' &&
+                        json.charAt(valueEnd) != '}'
+        ) {
+            valueEnd++;
+        }
+
+        return json.substring(valueStart, valueEnd).trim();
     }
 
     private void addPlaceholder(JTextField field, String placeholder) {
@@ -219,23 +311,33 @@ public class LoginFrame extends JFrame {
         field.addFocusListener(new FocusAdapter() {
             @Override
             public void focusGained(FocusEvent e) {
-                String password = new String(field.getPassword());
+                char[] passwordChars = field.getPassword();
+                String password = new String(passwordChars);
 
-                if (password.equals(placeholder)) {
-                    field.setText("");
-                    field.setForeground(Color.BLACK);
-                    field.setEchoChar('•');
+                try {
+                    if (password.equals(placeholder)) {
+                        field.setText("");
+                        field.setForeground(Color.BLACK);
+                        field.setEchoChar('•');
+                    }
+                } finally {
+                    Arrays.fill(passwordChars, '\0');
                 }
             }
 
             @Override
             public void focusLost(FocusEvent e) {
-                String password = new String(field.getPassword());
+                char[] passwordChars = field.getPassword();
+                String password = new String(passwordChars);
 
-                if (password.isBlank()) {
-                    field.setEchoChar((char) 0);
-                    field.setText(placeholder);
-                    field.setForeground(Color.GRAY);
+                try {
+                    if (password.isBlank()) {
+                        field.setEchoChar((char) 0);
+                        field.setText(placeholder);
+                        field.setForeground(Color.GRAY);
+                    }
+                } finally {
+                    Arrays.fill(passwordChars, '\0');
                 }
             }
         });

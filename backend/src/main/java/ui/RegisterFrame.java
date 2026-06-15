@@ -159,27 +159,39 @@ public class RegisterFrame extends JFrame {
             String responseBody = readResponse(connection);
 
             if (responseCode >= 200 && responseCode < 300) {
-                statusLabel.setText("Registratie gelukt!");
+                statusLabel.setText("Registrated Succesfully!");
 
                 JOptionPane.showMessageDialog(
                         this,
-                        "Account aangemaakt. Je kunt nu inloggen."
+                        "Account has been made.."
                 );
 
                 new LoginFrame().setVisible(true);
                 dispose();
 
             } else {
-                if (responseBody.contains("Username already exists")) {
+                if (responseBody.contains("Username is required")) {
+                    statusLabel.setText("Username is required.");
+                } else if (responseBody.contains("Username must be at least 3 characters")) {
+                    statusLabel.setText("Username must be at least 3 characters.");
+                } else if (responseBody.contains("Username may not be longer than 30 characters")) {
+                    statusLabel.setText("Username may not be longer than 30 characters.");
+                } else if (responseBody.contains("Username may only contain letters, numbers and _")) {
+                    statusLabel.setText("Username may only contain letters, numbers and _.");
+                } else if (responseBody.contains("Email is required")) {
+                    statusLabel.setText("Email is required.");
+                } else if (responseBody.contains("Email is too long")) {
+                    statusLabel.setText("Email is too long.");
+                } else if (responseBody.contains("Invalid email format")) {
+                    statusLabel.setText("Please enter a valid email address.");
+                } else if (responseBody.contains("Password must be at least 8 characters")) {
+                    statusLabel.setText("Password must be at least 8 characters.");
+                } else if (responseBody.contains("Password may not be longer than 128 characters")) {
+                    statusLabel.setText("Password may not be longer than 128 characters.");
+                } else if (responseBody.contains("Username already exists")) {
                     statusLabel.setText("Username already exists.");
                 } else if (responseBody.contains("Email already exists")) {
                     statusLabel.setText("Email already exists.");
-                } else if (responseBody.contains("Invalid email format")) {
-                    statusLabel.setText("Please enter a valid email address.");
-                } else if (responseBody.contains("Invalid username")) {
-                    statusLabel.setText("Username may only contain letters, numbers and _.");
-                } else if (responseBody.contains("Password must be at least 8 characters")) {
-                    statusLabel.setText("Password must be at least 8 characters.");
                 } else {
                     statusLabel.setText("Registration failed.");
                 }
@@ -188,7 +200,7 @@ public class RegisterFrame extends JFrame {
             connection.disconnect();
 
         } catch (Exception ex) {
-            statusLabel.setText("Kan backend niet bereiken.");
+            statusLabel.setText("Cannot reach backend.");
             ex.printStackTrace();
         }
     }

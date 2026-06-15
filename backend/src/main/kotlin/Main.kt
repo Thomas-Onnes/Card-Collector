@@ -2,18 +2,25 @@ package com.example
 
 import api.AuthHandler
 import api.LoginHandler
+import api.LogoutHandler
 import com.sun.net.httpserver.HttpServer
 import database.Database
 import java.net.InetSocketAddress
 import java.util.concurrent.Executors
 
 fun main() {
-    val server = HttpServer.create(InetSocketAddress(8080), 0)
+    val server =
+        HttpServer.create(
+            InetSocketAddress(8080),
+            0
+        )
 
     server.createContext("/register", AuthHandler())
     server.createContext("/login", LoginHandler())
+    server.createContext("/logout", LogoutHandler())
 
-    server.executor = Executors.newFixedThreadPool(8)
+    server.executor =
+        Executors.newFixedThreadPool(8)
 
     Runtime.getRuntime().addShutdownHook(
         Thread {

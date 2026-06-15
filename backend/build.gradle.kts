@@ -22,9 +22,9 @@ kotlin {
 dependencies {
     implementation(kotlin("stdlib"))
     implementation("org.postgresql:postgresql:42.7.3")
-    implementation("org.mindrot:jbcrypt:0.4")
     implementation("com.google.code.gson:gson:2.10.1")
     implementation("de.mkammerer:argon2-jvm:2.12")
+    implementation("com.zaxxer:HikariCP:5.1.0")
 
     testImplementation(kotlin("test"))
 }

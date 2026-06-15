@@ -3,80 +3,51 @@ package api
 import com.google.gson.Gson
 import com.sun.net.httpserver.HttpExchange
 import com.sun.net.httpserver.HttpHandler
+import models.LoginRequest
 import repositories.UserRepository
 import services.AuthService
-import models.LoginRequest
 
 class LoginHandler : HttpHandler {
 
     private val gson = Gson()
-
-    private val authService =
-        AuthService(
-            UserRepository()
-        )
+    private val authService = AuthService(UserRepository())
 
     override fun handle(exchange: HttpExchange) {
-
         if (exchange.requestMethod != "POST") {
-            exchange.sendResponseHeaders(
-                405,
-                -1
-            )
-
+            HttpUtils.sendEmpty(exchange, 405)
             return
         }
 
         try {
-            val body =
-                exchange.requestBody
-                    .bufferedReader()
-                    .readText()
+            val body = HttpUtils.readRequestBody(exchange)
+            val request = gson.fromJson(body, LoginRequest::class.java)
 
-            val request =
-                gson.fromJson(
-                    body,
-                    LoginRequest::class.java
-                )
-
-            val loginResponse =
-                authService.login(request)
-
-            val response =
-                gson.toJson(loginResponse)
-
-            exchange.responseHeaders.add(
-                "Content-Type",
-                "application/json"
-            )
-
-            exchange.sendResponseHeaders(
-                200,
-                response.toByteArray().size.toLong()
-            )
-
-            exchange.responseBody.use {
-                it.write(response.toByteArray())
+            if (request == null) {
+                HttpUtils.sendJson(exchange, 401, """{"error":"Invalid credentials"}""")
+                return
             }
+
+            val clientIp = exchange.remoteAddress.address.hostAddress
+            val loginResponse = authService.login(request, clientIp)
+            val response = gson.toJson(loginResponse)
+
+            HttpUtils.sendJson(exchange, 200, response)
+
+        } catch (e: IllegalArgumentException) {
+            HttpUtils.sendJson(
+                exchange,
+                413,
+                """{"error":"Request body too large"}"""
+            )
 
         } catch (e: Exception) {
+            println("Login failed: ${e.javaClass.simpleName}")
 
-            val response =
-                """{"error":"Invalid credentials"}"""
-
-            exchange.responseHeaders.add(
-                "Content-Type",
-                "application/json"
-            )
-
-            exchange.sendResponseHeaders(
+            HttpUtils.sendJson(
+                exchange,
                 401,
-                response.toByteArray().size.toLong()
+                """{"error":"Invalid credentials"}"""
             )
-
-            exchange.responseBody.use {
-                it.write(response.toByteArray())
-            }
         }
     }
 }

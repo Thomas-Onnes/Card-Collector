@@ -115,17 +115,17 @@ public class RegisterFrame extends JFrame {
                         password.equals("Password") ||
                         confirmPassword.equals("Confirm Password")
         ) {
-            statusLabel.setText("Vul alle velden in.");
+            statusLabel.setText("Fill in all fields.");
             return;
         }
 
         if (!password.equals(confirmPassword)) {
-            statusLabel.setText("Wachtwoorden komen niet overeen.");
+            statusLabel.setText("Password does not match.");
             return;
         }
 
         if (password.length() < 8) {
-            statusLabel.setText("Wachtwoord moet minimaal 8 tekens zijn.");
+            statusLabel.setText("Password must be at least 8 characters.");
             return;
         }
 
@@ -171,13 +171,17 @@ public class RegisterFrame extends JFrame {
 
             } else {
                 if (responseBody.contains("Username already exists")) {
-                    statusLabel.setText("Gebruikersnaam bestaat al.");
+                    statusLabel.setText("Username already exists.");
                 } else if (responseBody.contains("Email already exists")) {
-                    statusLabel.setText("E-mailadres bestaat al.");
-                } else if (responseBody.contains("Password too short")) {
-                    statusLabel.setText("Wachtwoord moet minimaal 8 tekens zijn.");
+                    statusLabel.setText("Email already exists.");
+                } else if (responseBody.contains("Invalid email format")) {
+                    statusLabel.setText("Please enter a valid email address.");
+                } else if (responseBody.contains("Invalid username")) {
+                    statusLabel.setText("Username may only contain letters, numbers and _.");
+                } else if (responseBody.contains("Password must be at least 8 characters")) {
+                    statusLabel.setText("Password must be at least 8 characters.");
                 } else {
-                    statusLabel.setText("Registratie mislukt.");
+                    statusLabel.setText("Registration failed.");
                 }
             }
 

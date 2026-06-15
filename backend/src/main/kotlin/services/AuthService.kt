@@ -5,86 +5,97 @@ import models.LoginResponse
 import models.RegisterRequest
 import models.User
 import repositories.UserRepository
+import security.InputValidator
+import security.LoginRateLimiter
 import security.PasswordHasher
+import security.TokenService
 
 class AuthService(
     private val userRepository: UserRepository
 ) {
 
+    companion object {
+        private val DUMMY_PASSWORD_HASH = PasswordHasher.hash("DummyPassword123!")
+    }
+
     fun register(request: RegisterRequest) {
+        val username = request.username.trim()
+        val email = request.email.trim().lowercase()
+        val password = request.password
 
-        if (
-            request.username.isBlank() ||
-            request.email.isBlank() ||
-            request.password.isBlank()
-        ) {
-            throw Exception("Invalid input")
+        if (!InputValidator.isValidUsername(username)) {
+            throw IllegalArgumentException("Invalid username")
         }
 
-        if (!request.email.contains("@")) {
-            throw Exception("Invalid email")
+        if (!InputValidator.isValidEmail(email)) {
+            throw IllegalArgumentException("Invalid email format")
         }
 
-        if (request.password.length < 8) {
-            throw Exception("Password too short")
+        if (!InputValidator.isValidPassword(password)) {
+            throw IllegalArgumentException("Password must be at least 8 characters")
         }
 
-        if (
-            userRepository.findByUsername(
-                request.username
-            ) != null
-        ) {
-            throw Exception("Username already exists")
+        val usernameExists = userRepository.findByUsername(username) != null
+        val emailExists = userRepository.findByEmail(email) != null
+
+        if (usernameExists) {
+            throw IllegalArgumentException("Username already exists")
         }
 
-        if (
-            userRepository.findByEmail(
-                request.email
-            ) != null
-        ) {
-            throw Exception("Email already exists")
+        if (emailExists) {
+            throw IllegalArgumentException("Email already exists")
         }
 
-        val hashedPassword =
-            PasswordHasher.hash(
-                request.password
-            )
+        val hashedPassword = PasswordHasher.hash(password)
 
         val user = User(
-            username = request.username,
-            email = request.email,
+            username = username,
+            email = email,
             passwordHashed = hashedPassword
         )
 
         userRepository.createUser(user)
     }
 
-    fun login(request: LoginRequest): LoginResponse {
+    fun login(request: LoginRequest, clientIp: String): LoginResponse {
+        val email = request.email.trim().lowercase()
+        val password = request.password
+        val limiterKey = "${clientIp}:${email}"
 
-        if (
-            request.email.isBlank() ||
-            request.password.isBlank()
-        ) {
+        if (LoginRateLimiter.isBlocked(limiterKey)) {
             throw Exception("Invalid credentials")
         }
 
-        val user =
-            userRepository.findByEmail(
-                request.email
-            ) ?: throw Exception("Invalid credentials")
-
-        val passwordMatches =
-            PasswordHasher.verify(
-                request.password,
-                user.passwordHashed
-            )
-
-        if (!passwordMatches) {
+        if (!InputValidator.isValidEmail(email) || password.isBlank()) {
+            LoginRateLimiter.recordFailure(limiterKey)
+            PasswordHasher.verify("invalid", DUMMY_PASSWORD_HASH)
             throw Exception("Invalid credentials")
         }
+
+        val user = userRepository.findByEmail(email)
+        val hashToVerify = user?.passwordHashed ?: DUMMY_PASSWORD_HASH
+
+        val passwordMatches = PasswordHasher.verify(
+            password,
+            hashToVerify
+        )
+
+        if (user == null || !passwordMatches) {
+            LoginRateLimiter.recordFailure(limiterKey)
+            throw Exception("Invalid credentials")
+        }
+
+        LoginRateLimiter.recordSuccess(limiterKey)
+
+        val token = TokenService.generateToken(
+            userId = user.id,
+            username = user.username,
+            email = user.email
+        )
 
         return LoginResponse(
             message = "Login successful",
+            token = token,
             userId = user.id,
             username = user.username,
             email = user.email

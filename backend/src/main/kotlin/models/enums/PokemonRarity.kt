@@ -1,6 +1,6 @@
 package models.enums
 
-enum class Rarity(val displayName: String) {
+enum class PokemonRarity(val displayName: String) {
     COMMON("Common"),
     UNCOMMON("Uncommon"),
     RARE("Rare"),

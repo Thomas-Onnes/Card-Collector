@@ -1,7 +1,7 @@
 package repositories
 
 import models.Card
-import models.enums.Rarity
+import models.enums.PokemonRarity
 import java.sql.Connection
 
 class CardRepository(

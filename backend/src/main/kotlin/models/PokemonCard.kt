@@ -1,11 +1,11 @@
 package models
 
-import models.enums.Rarity
+import models.enums.PokemonRarity
 
 data class PokemonCard (
     val cardId: Int?,
     val hp: Int?,
-    val rarity: Rarity,
+    val rarity: PokemonRarity,
     val types: String,
     val evolvesFrom: String?,
     val setName: String,

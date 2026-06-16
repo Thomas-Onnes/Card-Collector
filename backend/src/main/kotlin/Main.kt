@@ -9,7 +9,10 @@ import repositories.PokemonCardRepository
 import services.PokemonCardService
 import config.Environment.dbSeed
 import database.DatabaseSeeder
-
+import external.scryfall.ScryfallClient
+import repositories.MagicTheGatheringCardRepository
+import repositories.MagicTheGatheringSetRepository
+import services.MagicTheGatheringSyncService
 
 fun main() {
     val connection = DatabaseConnection.getConnection()
@@ -30,6 +33,25 @@ fun main() {
         e.printStackTrace()
     }
     println("Card Collector Backend Running")
+
+    println("Syncing Magic The Gathering sets and cards")
+
+    val scryfallClient = ScryfallClient()
+    val magicSetRepository = MagicTheGatheringSetRepository(connection)
+    val magicCardRepository = MagicTheGatheringCardRepository(connection)
+    val cardRepository = CardRepository(connection)
+
+    val magicSyncService = MagicTheGatheringSyncService(
+        scryfallClient,
+        magicSetRepository,
+        cardRepository,
+        magicCardRepository
+    )
+
+    magicSyncService.syncNewSetsAndCards()
+
+    println("Magic The Gathering sync finished")
+
     App(connection).start()
 
 //    val mapper = TcgDexCardMapper()

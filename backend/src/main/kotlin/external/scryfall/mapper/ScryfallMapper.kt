@@ -3,7 +3,7 @@ import external.scryfall.dto.ScryfallCardDto
 import models.MagicTheGatheringCard
 import models.enums.MagicTheGatheringRarity
 
-class ScryfallMapper {
+
     fun ScryfallCardDto.toMagicTheGatheringCard(): MagicTheGatheringCard {
         val type = typeLine.orEmpty().lowercase()
 
@@ -32,4 +32,3 @@ class ScryfallMapper {
             isKindred = type.contains("kindred")
         )
     }
-}

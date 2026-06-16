@@ -7,6 +7,7 @@ import com.sun.net.httpserver.HttpServer
 import database.Database
 import java.net.InetSocketAddress
 import java.util.concurrent.Executors
+import api.CollectionsHandler
 
 fun main() {
     val server =
@@ -18,6 +19,7 @@ fun main() {
     server.createContext("/register", AuthHandler())
     server.createContext("/login", LoginHandler())
     server.createContext("/logout", LogoutHandler())
+    server.createContext("/collections", CollectionsHandler())
 
     server.executor =
         Executors.newFixedThreadPool(8)

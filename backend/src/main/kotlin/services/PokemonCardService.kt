@@ -1,7 +1,10 @@
 package services
 
+import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
 import external.tcgdex.TcgDexClient
+import external.tcgdex.dto.TcgDexCardDto
 import external.tcgdex.mapper.TcgDexCardMapper
+import models.Card
 import models.PokemonCard
 import repositories.CardRepository
 import repositories.PokemonCardRepository
@@ -36,6 +39,23 @@ class PokemonCardService(
         )
         println("import succesful")
 
+    }
+
+    fun importLocalCard(dto: TcgDexCardDto) {
+        println("Mapping DTO")
+
+        val card = mapper.toCard(dto)
+
+        val pokemonCard = mapper.toPokemonCard(
+            dto,
+            jacksonObjectMapper().writeValueAsString(dto)
+        )
+
+        println("Saving card")
+
+        val generatedCardId = cardRepository.save(card)
+
+        pokemonCardRepository.save(pokemonCard, generatedCardId)
     }
 
     fun getAllPokemonCards(): List<PokemonCard> {

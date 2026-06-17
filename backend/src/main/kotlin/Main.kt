@@ -1,3 +1,4 @@
+import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
 import config.Environment.dbMigration
 import core.App
 import database.DatabaseConnection
@@ -9,7 +10,9 @@ import repositories.PokemonCardRepository
 import services.PokemonCardService
 import config.Environment.dbSeed
 import database.DatabaseSeeder
+import database.PokemonSeeder
 import external.scryfall.ScryfallClient
+import pokemon.LocalPokemonDataSource
 import repositories.MagicTheGatheringCardRepository
 import repositories.MagicTheGatheringSetRepository
 import services.MagicTheGatheringSyncService
@@ -18,41 +21,50 @@ fun main() {
     val connection = DatabaseConnection.getConnection()
     println("Database connected")
 
-    try {
-        if (dbMigration.equals("true")) {
-            println("Running migrations")
-            val migrationRunner = MigrationRunner(connection)
-            migrationRunner.run()
-        }
-        if (dbSeed.equals("true")) {
-            println("Running seeders")
-            val databaseSeeder = DatabaseSeeder(connection)
-            databaseSeeder.run()
-        }
-    } catch (e: Exception) {
-        e.printStackTrace()
-    }
-    println("Card Collector Backend Running")
+//    try {
+//        if (dbMigration.equals("true")) {
+//            println("Running migrations")
+//            val migrationRunner = MigrationRunner(connection)
+//            migrationRunner.run()
+//        }
+//        if (dbSeed.equals("true")) {
+//            println("Running seeders")
+//            val databaseSeeder = DatabaseSeeder(connection)
+//            databaseSeeder.run()
+//        }
+//    } catch (e: Exception) {
+//        e.printStackTrace()
+//    }
+//    println("Card Collector Backend Running")
 
-    println("Syncing Magic The Gathering sets and cards")
+//    println("Syncing Magic The Gathering sets and cards")
 
-    val scryfallClient = ScryfallClient()
-    val magicSetRepository = MagicTheGatheringSetRepository(connection)
-    val magicCardRepository = MagicTheGatheringCardRepository(connection)
+//    val scryfallClient = ScryfallClient()
+//    val magicSetRepository = MagicTheGatheringSetRepository(connection)
+//    val magicCardRepository = MagicTheGatheringCardRepository(connection)
+//    val cardRepository = CardRepository(connection)
+//
+//    val magicSyncService = MagicTheGatheringSyncService(
+//        scryfallClient,
+//        magicSetRepository,
+//        cardRepository,
+//        magicCardRepository
+//    )
+
+//    magicSyncService.syncNewSetsAndCards()
+
+//    println("Magic The Gathering sync finished")
+    val localPokemonDataSource = LocalPokemonDataSource()
+    val tcgDexClient = TcgDexClient()
+    val mapper = TcgDexCardMapper()
     val cardRepository = CardRepository(connection)
+    val pokemonCardRepository = PokemonCardRepository(connection)
 
-    val magicSyncService = MagicTheGatheringSyncService(
-        scryfallClient,
-        magicSetRepository,
-        cardRepository,
-        magicCardRepository
-    )
+    val pokemonCardService = PokemonCardService(tcgDexClient, mapper, cardRepository, pokemonCardRepository)
+    val pokemonSeeder = PokemonSeeder(pokemonCardService, localPokemonDataSource)
 
-    magicSyncService.syncNewSetsAndCards()
-
-    println("Magic The Gathering sync finished")
-
-    App(connection).start()
+    pokemonSeeder.run()
+//    App(connection).start()
 
 //    val mapper = TcgDexCardMapper()
 //    val client = TcgDexClient()

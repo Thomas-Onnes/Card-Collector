@@ -1,4 +1,4 @@
-CREATE TABLE collection_cards (
+CREATE TABLE IF NOT EXISTS collection_cards (
     id INTEGER GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
     collection_id INTEGER NOT NULL,
     card_id INTEGER NOT NULL,

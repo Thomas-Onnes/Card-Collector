@@ -56,16 +56,6 @@ fun main() {
 
     println("Magic The Gathering sync finished")
 
-    val localPokemonDataSource = LocalPokemonDataSource()
-    val tcgDexClient = TcgDexClient()
-    val mapper = TcgDexCardMapper()
-    val pokemonCardRepository = PokemonCardRepository(connection)
-
-    val pokemonCardService = PokemonCardService(tcgDexClient, mapper, cardRepository, pokemonCardRepository)
-    val pokemonSeeder = PokemonSeeder(pokemonCardService, localPokemonDataSource)
-
-    pokemonSeeder.run()
-
     App(connection).start()
 
 //    val mapper = TcgDexCardMapper()

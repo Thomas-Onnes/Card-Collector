@@ -83,9 +83,8 @@ class ScryfallClient {
 
             endpoint = listResponse.nextPage
 
-            if (endpoint != null) {
-                Thread.sleep(600)
-            }
+            Thread.sleep(600)
+
         }
 
         return cards

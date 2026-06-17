@@ -1,13 +1,14 @@
 package config
 
-import java.io.File
-
 object PathConfig {
 
-    val resourcePath: String = listOf(
-        "src/main/resources",
-        "backend/src/main/resources"
-    ).firstOrNull { path ->
-        File(path).exists()
-    } ?: "src/main/resources"
+    private val workingDirectory =
+        System.getProperty("user.dir")
+
+    val resourcePath =
+        if (workingDirectory.endsWith("backend")) {
+            "src/main/resources"
+        } else {
+            "backend/src/main/resources"
+        }
 }

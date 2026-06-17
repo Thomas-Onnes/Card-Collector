@@ -25,19 +25,8 @@ class MagicTheGatheringSyncService(
                 setRepository.findByScryfallId(set.scryfallId)
 
             if (existingSet == null) {
-                if (setDto.cardCount == 0) {
-                    println(
-                        "Skipping Magic set ${set.code}: Scryfall says it contains 0 cards"
-                    )
-                    setRepository.save(set)
-                    continue
-                }
-
                 val cardDtos =
-                    scryfallClient.getCardsBySet(
-                        set.code,
-                        setDto.searchUri
-                    )
+                    scryfallClient.getCardsBySet(set.code)
 
                 for (cardDto in cardDtos) {
                     val magicCard =

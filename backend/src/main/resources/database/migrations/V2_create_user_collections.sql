@@ -1,4 +1,4 @@
-CREATE TABLE IF NOT EXISTS user_collections (
+CREATE TABLE user_collections (
     id INTEGER GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
     user_id integer NOT NULL,
     collection_name VARCHAR(200) NOT NULL,

@@ -1,4 +1,4 @@
-CREATE TABLE IF NOT EXISTS pokemon_cards (
+CREATE TABLE pokemon_cards (
     card_id INTEGER PRIMARY KEY,
     hp integer,
     rarity varchar(200) NOT NULL,

@@ -20,7 +20,7 @@ class MigrationRunner(
             try {
                 val sql = readMigrationFile(migration)
                 executeMigration(sql)
-                println("Migration succesful")
+                println("Migration succescful")
             } catch (e: Exception) {
                 if (e.message?.contains("already exists") == true) {
                     println("Migration skipped: table already exists")

@@ -1,4 +1,4 @@
-CREATE TABLE IF NOT EXISTS magic_the_gathering_cards (
+CREATE TABLE magic_the_gathering_cards (
     card_id INTEGER PRIMARY KEY,
 
     scryfall_id VARCHAR(100) UNIQUE NOT NULL,

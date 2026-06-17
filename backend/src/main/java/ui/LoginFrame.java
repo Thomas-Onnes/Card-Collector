@@ -16,82 +16,136 @@ import java.util.stream.Collectors;
 
 public class LoginFrame extends JFrame {
 
-    private final JTextField emailField;
-    private final JPasswordField passwordField;
-    private final JLabel statusLabel;
+    private static final Color BACKGROUND = new Color(115, 115, 115);
+    private static final Color BUTTON_COLOR = new Color(45, 45, 45);
+    private static final Color TITLE_COLOR = new Color(255, 165, 90);
+
+    private JTextField emailField;
+    private JPasswordField passwordField;
+    private JLabel statusLabel;
 
     public LoginFrame() {
         setTitle("Card Collector - Login");
+        setMinimumSize(new Dimension(800, 550));
         setSize(1000, 650);
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         setLocationRelativeTo(null);
 
-        JPanel mainPanel = new JPanel(null);
-        mainPanel.setBackground(new Color(115, 115, 115));
+        JPanel rootPanel = new JPanel(new BorderLayout());
+        rootPanel.setBackground(BACKGROUND);
 
-        JLabel titleLabel = new JLabel("Card Collector");
+        rootPanel.add(createCenterPanel(), BorderLayout.CENTER);
+        rootPanel.add(createBottomPanel(), BorderLayout.SOUTH);
+
+        add(rootPanel);
+    }
+
+    private JPanel createCenterPanel() {
+        JPanel centerPanel = new JPanel(new GridBagLayout());
+        centerPanel.setBackground(BACKGROUND);
+
+        JPanel formPanel = new JPanel(new GridBagLayout());
+        formPanel.setOpaque(false);
+        formPanel.setBorder(BorderFactory.createEmptyBorder(30, 40, 30, 40));
+
+        GridBagConstraints gbc = new GridBagConstraints();
+        gbc.insets = new Insets(10, 10, 10, 10);
+        gbc.fill = GridBagConstraints.HORIZONTAL;
+        gbc.gridx = 0;
+        gbc.weightx = 1.0;
+
+        JLabel titleLabel = new JLabel("Card Collector", SwingConstants.CENTER);
         titleLabel.setFont(new Font("Arial", Font.ITALIC, 54));
-        titleLabel.setForeground(new Color(255, 165, 90));
-        titleLabel.setBounds(330, 70, 500, 80);
-        mainPanel.add(titleLabel);
+        titleLabel.setForeground(TITLE_COLOR);
 
-        JLabel loginLabel = new JLabel("Login");
+        JLabel loginLabel = new JLabel("Login", SwingConstants.CENTER);
         loginLabel.setFont(new Font("Arial", Font.PLAIN, 42));
         loginLabel.setForeground(Color.WHITE);
-        loginLabel.setBounds(450, 190, 200, 60);
-        mainPanel.add(loginLabel);
 
         emailField = new JTextField();
         emailField.setFont(new Font("Arial", Font.PLAIN, 20));
-        emailField.setBounds(355, 280, 300, 40);
+        emailField.setPreferredSize(new Dimension(340, 42));
         addPlaceholder(emailField, "Email");
-        mainPanel.add(emailField);
 
         passwordField = new JPasswordField();
         passwordField.setFont(new Font("Arial", Font.PLAIN, 20));
-        passwordField.setBounds(355, 360, 300, 40);
+        passwordField.setPreferredSize(new Dimension(340, 42));
         addPasswordPlaceholder(passwordField, "Password");
-        mainPanel.add(passwordField);
 
-        statusLabel = new JLabel("");
-        statusLabel.setFont(new Font("Arial", Font.PLAIN, 18));
+        statusLabel = new JLabel("", SwingConstants.CENTER);
+        statusLabel.setFont(new Font("Arial", Font.PLAIN, 17));
         statusLabel.setForeground(Color.WHITE);
-        statusLabel.setBounds(355, 415, 500, 30);
-        mainPanel.add(statusLabel);
 
-        JButton submitButton = new JButton("Submit");
-        submitButton.setFont(new Font("Arial", Font.PLAIN, 34));
-        submitButton.setBackground(new Color(45, 45, 45));
-        submitButton.setForeground(Color.WHITE);
-        submitButton.setFocusPainted(false);
-        submitButton.setBounds(415, 460, 170, 70);
+        JButton submitButton = createButton("Submit", 32);
+        submitButton.setPreferredSize(new Dimension(190, 65));
         submitButton.addActionListener(e -> loginUser());
-        mainPanel.add(submitButton);
 
-        JButton forgotButton = new JButton("Forgot password?");
-        forgotButton.setFont(new Font("Arial", Font.PLAIN, 28));
-        forgotButton.setBackground(new Color(45, 45, 45));
-        forgotButton.setForeground(Color.WHITE);
-        forgotButton.setFocusPainted(false);
-        forgotButton.setBounds(330, 560, 350, 55);
+        JButton forgotButton = createButton("Forgot password?", 24);
+        forgotButton.setPreferredSize(new Dimension(280, 50));
         forgotButton.addActionListener(e ->
                 statusLabel.setText("Password reset will be added later.")
         );
-        mainPanel.add(forgotButton);
 
-        JButton signupButton = new JButton("Sign up");
-        signupButton.setFont(new Font("Arial", Font.PLAIN, 30));
-        signupButton.setBackground(new Color(45, 45, 45));
-        signupButton.setForeground(Color.WHITE);
-        signupButton.setFocusPainted(false);
-        signupButton.setBounds(780, 540, 160, 70);
+        gbc.gridy = 0;
+        formPanel.add(titleLabel, gbc);
+
+        gbc.gridy = 1;
+        gbc.insets = new Insets(25, 10, 10, 10);
+        formPanel.add(loginLabel, gbc);
+
+        gbc.gridy = 2;
+        gbc.insets = new Insets(20, 10, 10, 10);
+        formPanel.add(emailField, gbc);
+
+        gbc.gridy = 3;
+        formPanel.add(passwordField, gbc);
+
+        gbc.gridy = 4;
+        gbc.insets = new Insets(5, 10, 5, 10);
+        formPanel.add(statusLabel, gbc);
+
+        gbc.gridy = 5;
+        gbc.insets = new Insets(15, 10, 10, 10);
+        gbc.fill = GridBagConstraints.NONE;
+        formPanel.add(submitButton, gbc);
+
+        gbc.gridy = 6;
+        gbc.insets = new Insets(15, 10, 10, 10);
+        formPanel.add(forgotButton, gbc);
+
+        centerPanel.add(formPanel);
+
+        return centerPanel;
+    }
+
+    private JPanel createBottomPanel() {
+        JPanel bottomPanel = new JPanel(new BorderLayout());
+        bottomPanel.setBackground(BACKGROUND);
+        bottomPanel.setBorder(BorderFactory.createEmptyBorder(10, 25, 25, 25));
+
+        JButton signupButton = createButton("Sign up", 24);
+        signupButton.setPreferredSize(new Dimension(150, 55));
         signupButton.addActionListener(e -> {
             new RegisterFrame().setVisible(true);
             dispose();
         });
-        mainPanel.add(signupButton);
 
-        add(mainPanel);
+        JPanel rightPanel = new JPanel(new FlowLayout(FlowLayout.RIGHT));
+        rightPanel.setOpaque(false);
+        rightPanel.add(signupButton);
+
+        bottomPanel.add(rightPanel, BorderLayout.EAST);
+
+        return bottomPanel;
+    }
+
+    private JButton createButton(String text, int fontSize) {
+        JButton button = new JButton(text);
+        button.setFont(new Font("Arial", Font.PLAIN, fontSize));
+        button.setBackground(BUTTON_COLOR);
+        button.setForeground(Color.WHITE);
+        button.setFocusPainted(false);
+        return button;
     }
 
     private void loginUser() {
@@ -130,9 +184,7 @@ public class LoginFrame extends JFrame {
             );
 
             try (OutputStream os = connection.getOutputStream()) {
-                byte[] input =
-                        json.getBytes(StandardCharsets.UTF_8);
-
+                byte[] input = json.getBytes(StandardCharsets.UTF_8);
                 os.write(input, 0, input.length);
             }
 
@@ -179,6 +231,69 @@ public class LoginFrame extends JFrame {
         } finally {
             Arrays.fill(passwordChars, '\0');
         }
+    }
+
+    private void addPlaceholder(JTextField field, String placeholder) {
+        field.setText(placeholder);
+        field.setForeground(Color.GRAY);
+
+        field.addFocusListener(new FocusAdapter() {
+            @Override
+            public void focusGained(FocusEvent e) {
+                if (field.getText().equals(placeholder)) {
+                    field.setText("");
+                    field.setForeground(Color.BLACK);
+                }
+            }
+
+            @Override
+            public void focusLost(FocusEvent e) {
+                if (field.getText().isBlank()) {
+                    field.setText(placeholder);
+                    field.setForeground(Color.GRAY);
+                }
+            }
+        });
+    }
+
+    private void addPasswordPlaceholder(JPasswordField field, String placeholder) {
+        field.setEchoChar((char) 0);
+        field.setText(placeholder);
+        field.setForeground(Color.GRAY);
+
+        field.addFocusListener(new FocusAdapter() {
+            @Override
+            public void focusGained(FocusEvent e) {
+                char[] passwordChars = field.getPassword();
+                String password = new String(passwordChars);
+
+                try {
+                    if (password.equals(placeholder)) {
+                        field.setText("");
+                        field.setForeground(Color.BLACK);
+                        field.setEchoChar('•');
+                    }
+                } finally {
+                    Arrays.fill(passwordChars, '\0');
+                }
+            }
+
+            @Override
+            public void focusLost(FocusEvent e) {
+                char[] passwordChars = field.getPassword();
+                String password = new String(passwordChars);
+
+                try {
+                    if (password.isBlank()) {
+                        field.setEchoChar((char) 0);
+                        field.setText(placeholder);
+                        field.setForeground(Color.GRAY);
+                    }
+                } finally {
+                    Arrays.fill(passwordChars, '\0');
+                }
+            }
+        });
     }
 
     private String readResponse(HttpURLConnection connection)
@@ -278,69 +393,6 @@ public class LoginFrame extends JFrame {
         }
 
         return json.substring(valueStart, valueEnd).trim();
-    }
-
-    private void addPlaceholder(JTextField field, String placeholder) {
-        field.setText(placeholder);
-        field.setForeground(Color.GRAY);
-
-        field.addFocusListener(new FocusAdapter() {
-            @Override
-            public void focusGained(FocusEvent e) {
-                if (field.getText().equals(placeholder)) {
-                    field.setText("");
-                    field.setForeground(Color.BLACK);
-                }
-            }
-
-            @Override
-            public void focusLost(FocusEvent e) {
-                if (field.getText().isBlank()) {
-                    field.setText(placeholder);
-                    field.setForeground(Color.GRAY);
-                }
-            }
-        });
-    }
-
-    private void addPasswordPlaceholder(JPasswordField field, String placeholder) {
-        field.setEchoChar((char) 0);
-        field.setText(placeholder);
-        field.setForeground(Color.GRAY);
-
-        field.addFocusListener(new FocusAdapter() {
-            @Override
-            public void focusGained(FocusEvent e) {
-                char[] passwordChars = field.getPassword();
-                String password = new String(passwordChars);
-
-                try {
-                    if (password.equals(placeholder)) {
-                        field.setText("");
-                        field.setForeground(Color.BLACK);
-                        field.setEchoChar('•');
-                    }
-                } finally {
-                    Arrays.fill(passwordChars, '\0');
-                }
-            }
-
-            @Override
-            public void focusLost(FocusEvent e) {
-                char[] passwordChars = field.getPassword();
-                String password = new String(passwordChars);
-
-                try {
-                    if (password.isBlank()) {
-                        field.setEchoChar((char) 0);
-                        field.setText(placeholder);
-                        field.setForeground(Color.GRAY);
-                    }
-                } finally {
-                    Arrays.fill(passwordChars, '\0');
-                }
-            }
-        });
     }
 
     public static void main(String[] args) {

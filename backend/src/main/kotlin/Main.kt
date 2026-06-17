@@ -31,6 +31,7 @@ fun main() {
         }
     } catch (e: Exception) {
         e.printStackTrace()
+        return
     }
     println("Card Collector Backend Running")
 

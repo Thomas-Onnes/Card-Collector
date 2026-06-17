@@ -1,8 +1,11 @@
 package external.scryfall.dto
+
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties
 import com.fasterxml.jackson.annotation.JsonProperty
 
+@JsonIgnoreProperties(ignoreUnknown = true)
 data class ScryfallCardDto (
-    val id: String, //this is the scryfall ID
+    val id: String, // this is the Scryfall ID
     val name: String,
 
     @JsonProperty("set")
@@ -21,7 +24,4 @@ data class ScryfallCardDto (
 
     @JsonProperty("artist")
     val illustrator: String?,
-
-  //  @SerialName("image_uris")
-    // val image: String?
 )

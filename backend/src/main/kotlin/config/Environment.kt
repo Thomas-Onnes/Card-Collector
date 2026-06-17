@@ -4,24 +4,35 @@ import io.github.cdimascio.dotenv.dotenv
 
 object Environment {
 
-    private val dotenv = dotenv{
+    private val dotenv = dotenv {
         directory = "."
         filename = ".env"
+        ignoreIfMissing = true
+    }
+
+    private fun getRequiredValue(key: String): String {
+        return System.getenv(key)
+            ?: dotenv[key]
+            ?: throw IllegalStateException("Missing required environment variable: $key")
+    }
+
+    private fun getOptionalValue(key: String): String? {
+        return System.getenv(key)
+            ?: dotenv[key]
     }
 
     val dbUrl: String =
-        dotenv["DB_URL"]
+        getRequiredValue("DB_URL")
 
     val dbUser: String =
-        dotenv["DB_USER"]
+        getRequiredValue("DB_USER")
 
     val dbPassword: String =
-        dotenv["DB_PASSWORD"]
+        getRequiredValue("DB_PASSWORD")
 
     val dbMigration: String? =
-        dotenv["RUN_MIGRATION"]
+        getOptionalValue("RUN_MIGRATION")
 
     val dbSeed: String? =
-        dotenv["SEED_DATABASE"]
-
+        getOptionalValue("SEED_DATABASE")
 }

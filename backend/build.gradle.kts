@@ -4,6 +4,9 @@ plugins {
     kotlin("jvm") version "2.0.0"
     application
     id("com.gradleup.shadow") version "8.3.6"
+
+    id("io.gitlab.arturbosch.detekt") version "1.23.8"
+    id("org.jlleitschuh.gradle.ktlint") version "14.2.0"
 }
 
 group = "org.example"
@@ -28,6 +31,30 @@ dependencies {
     implementation("com.zaxxer:HikariCP:5.1.0")
 
     testImplementation(kotlin("test"))
+}
+
+detekt {
+    buildUponDefaultConfig = true
+    allRules = false
+    autoCorrect = false
+
+    // Voor nu handig: de CI faalt niet direct op alle bestaande code smells.
+    // Je krijgt wel een rapport.
+    ignoreFailures = true
+}
+
+ktlint {
+    outputToConsole.set(true)
+
+    // Voor nu handig: de CI blijft groen, maar rapport/check draait wel.
+    // Later kun je dit op false zetten als je strenger wilt zijn.
+    ignoreFailures.set(true)
+}
+
+tasks.register("quality") {
+    group = "verification"
+    description = "Runs all code quality tools."
+    dependsOn("ktlintCheck", "detekt")
 }
 
 application {

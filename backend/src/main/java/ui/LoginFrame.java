@@ -219,8 +219,13 @@ public class LoginFrame extends JFrame {
                 dispose();
 
             } else {
+            if (responseCode == 429 || responseBody.contains("Too many login attempts")
+            ) {
+                statusLabel.setText("Too many login attempts. Please try again later.");
+            } else {
                 statusLabel.setText("Email or password is incorrect.");
             }
+        }
 
             connection.disconnect();
 

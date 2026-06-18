@@ -13,7 +13,7 @@ fun main() {
     waitForDatabase()
 
     val runMigrations = envFlag("RUN_MIGRATIONS", defaultValue = true)
-    val seedDatabase = envFlag("SEED_DATABASE", defaultValue = false)
+    val seedDatabase = envFlag("SEED_DATABASE", defaultValue = true)
 
     println("RUN_MIGRATIONS=$runMigrations")
     println("SEED_DATABASE=$seedDatabase")

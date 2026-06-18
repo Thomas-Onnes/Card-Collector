@@ -6,6 +6,8 @@ import com.sun.net.httpserver.HttpHandler
 import models.LoginRequest
 import repositories.UserRepository
 import services.AuthService
+import security.InvalidCredentialsException
+import security.TooManyLoginAttemptsException
 
 class LoginHandler : HttpHandler {
 
@@ -33,15 +35,36 @@ class LoginHandler : HttpHandler {
 
             HttpUtils.sendJson(exchange, 200, response)
 
-        } catch (e: IllegalArgumentException) {
+        } catch (e: TooManyLoginAttemptsException) {
             HttpUtils.sendJson(
                 exchange,
-                413,
-                """{"error":"Request body too large"}"""
+                429,
+                """{"error":"Too many login attempts. Please try again later."}"""
+            )
+
+        } catch (e: InvalidCredentialsException) {
+            HttpUtils.sendJson(
+                exchange,
+                401,
+                """{"error":"Invalid credentials"}"""
+            )
+
+        } catch (e: IllegalArgumentException) {
+            val statusCode =
+                if (e.message == "Request body too large") {
+                    413
+                } else {
+                    400
+                }
+
+            HttpUtils.sendJson(
+                exchange,
+                statusCode,
+                """{"error":"Invalid login request"}"""
             )
 
         } catch (e: Exception) {
-            println("Login failed: ${e.javaClass.simpleName}")
+            println("Login failed: ${e::class.java.simpleName}")
 
             HttpUtils.sendJson(
                 exchange,

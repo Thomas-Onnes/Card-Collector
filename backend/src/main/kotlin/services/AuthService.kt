@@ -9,6 +9,8 @@ import security.InputValidator
 import security.LoginRateLimiter
 import security.PasswordHasher
 import security.TokenService
+import security.InvalidCredentialsException
+import security.TooManyLoginAttemptsException
 
 class AuthService(
     private val userRepository: UserRepository
@@ -52,16 +54,39 @@ class AuthService(
     fun login(request: LoginRequest, clientIp: String): LoginResponse {
         val email = request.email.trim().lowercase()
         val password = request.password
-        val limiterKey = "${clientIp}:${email}"
 
-        if (LoginRateLimiter.isBlocked(limiterKey)) {
-            throw Exception("Invalid credentials")
+        val accountKey =
+            LoginRateLimiter.createAccountKey(
+                clientIp = clientIp,
+                email = email
+            )
+
+        val ipKey =
+            LoginRateLimiter.createIpKey(
+                clientIp = clientIp
+            )
+
+        if (LoginRateLimiter.isBlocked(accountKey, ipKey)) {
+            throw TooManyLoginAttemptsException()
         }
 
         if (!InputValidator.isValidEmail(email) || password.isBlank()) {
-            LoginRateLimiter.recordFailure(limiterKey)
-            PasswordHasher.verify("invalid", DUMMY_PASSWORD_HASH)
-            throw Exception("Invalid credentials")
+            val isNowBlocked =
+                LoginRateLimiter.recordFailure(
+                    accountKey = accountKey,
+                    ipKey = ipKey
+                )
+
+            PasswordHasher.verify(
+                "invalid",
+                DUMMY_PASSWORD_HASH
+            )
+
+            if (isNowBlocked) {
+                throw TooManyLoginAttemptsException()
+            }
+
+            throw InvalidCredentialsException()
         }
 
         val user = userRepository.findByEmail(email)
@@ -74,11 +99,20 @@ class AuthService(
             )
 
         if (user == null || !passwordMatches) {
-            LoginRateLimiter.recordFailure(limiterKey)
-            throw Exception("Invalid credentials")
+            val isNowBlocked =
+                LoginRateLimiter.recordFailure(
+                    accountKey = accountKey,
+                    ipKey = ipKey
+                )
+
+            if (isNowBlocked) {
+                throw TooManyLoginAttemptsException()
+            }
+
+            throw InvalidCredentialsException()
         }
 
-        LoginRateLimiter.recordSuccess(limiterKey)
+        LoginRateLimiter.recordSuccess(accountKey)
 
         val token =
             TokenService.createSession(

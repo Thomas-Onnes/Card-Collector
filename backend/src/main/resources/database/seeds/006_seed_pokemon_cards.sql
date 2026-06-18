@@ -19,5 +19,5 @@ INSERT INTO pokemon_cards(
 'Mitsuhiro Arita',
 'json'
 )
-ON CONFLICT (collector_number)
+ON CONFLICT (set_id, collector_number)
 DO NOTHING;

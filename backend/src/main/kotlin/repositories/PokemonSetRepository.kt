@@ -26,7 +26,7 @@ class PokemonSetRepository(
         while(result.next()) {
             val pokemonSet = PokemonSet(
                 result.getInt("id"),
-                result.getString("tcgdex_id"),
+                result.getInt("tcgdex_id"),
                 result.getString("name"),
                 result.getString("series"),
                 result.getDate("release_date")

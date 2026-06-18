@@ -6,5 +6,6 @@ INSERT INTO pokemon_sets (
 ) values (
 'test',
 'Scarlet & Voilet 151',
-'Scarlet & Voilet'
+'Scarlet & Voilet',
+'2023-09-22'
 )

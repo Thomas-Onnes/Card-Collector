@@ -12,6 +12,7 @@ import java.net.http.HttpClient
 import java.net.http.HttpRequest
 import java.net.http.HttpResponse
 import java.nio.charset.StandardCharsets
+import java.util.UUID
 
 class ScryfallClient {
 
@@ -19,6 +20,14 @@ class ScryfallClient {
     private val client = HttpClient.newBuilder().build()
     private val objectMapper = jacksonObjectMapper()
         .configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false)
+    private val allowedRarities = setOf(
+        "common",
+        "uncommon",
+        "rare",
+        "mythic",
+        "special",
+        "bonus"
+    )
 
     fun getSets(): List<ScryfallSetDto> {
         val endpoint = "$baseUrl/sets"
@@ -41,7 +50,17 @@ class ScryfallClient {
                 response.body()
             )
 
-        return listResponse.data
+        val validSets = listResponse.data.filter { set ->
+            val isValid = isValidScryfallSet(set)
+
+            if (!isValid) {
+                println("Skipping invalid Scryfall set")
+            }
+
+            isValid
+        }
+
+        return validSets
     }
 
     fun getCardsBySet(
@@ -79,7 +98,17 @@ class ScryfallClient {
                     response.body()
                 )
 
-            cards.addAll(listResponse.data)
+            val validCards = listResponse.data.filter { card ->
+                val isValid = isValidScryfallCard(card)
+
+                if (!isValid) {
+                    println("Skipping invalid Scryfall card from set $setCode")
+                }
+
+                isValid
+            }
+
+            cards.addAll(validCards)
 
             endpoint = listResponse.nextPage
 
@@ -106,5 +135,96 @@ class ScryfallClient {
             .header("User-Agent", "Card-Collector/1.0")
             .GET()
             .build()
+    }
+
+    private fun isValidScryfallCard(card: ScryfallCardDto): Boolean {
+        if (!isValidUuid(card.id)) {
+            return false
+        }
+
+        if (!isValidRequiredText(card.name, 100)) {
+            return false
+        }
+
+        if (!isValidRequiredText(card.setCode, 10)) {
+            return false
+        }
+
+        if (!isValidRequiredText(card.setName, 50)) {
+            return false
+        }
+
+        if (card.rarity.lowercase() !in allowedRarities) {
+            return false
+        }
+
+        if (!isValidOptionalText(card.manaCost, 100)) {
+            return false
+        }
+
+        if (!isValidOptionalText(card.typeLine, 100)) {
+            return false
+        }
+
+        if (!isValidOptionalText(card.illustrator, 50)) {
+            return false
+        }
+
+        return true
+    }
+
+    private fun isValidScryfallSet(set: ScryfallSetDto): Boolean {
+        if (!isValidUuid(set.id)) {
+            return false
+        }
+
+        if (!isValidRequiredText(set.code, 10)) {
+            return false
+        }
+
+        if (!isValidRequiredText(set.name, 50)) {
+            return false
+        }
+
+        return true
+    }
+
+    private fun isValidUuid(value: String): Boolean {
+        return try {
+            UUID.fromString(value)
+            true
+        } catch (e: IllegalArgumentException) {
+            false
+        }
+    }
+
+    private fun isValidRequiredText(
+        value: String,
+        maxLength: Int
+    ): Boolean {
+        return value.isNotBlank() &&
+                value.length <= maxLength &&
+                !containsUnsafeControlCharacters(value)
+    }
+
+    private fun isValidOptionalText(
+        value: String?,
+        maxLength: Int
+    ): Boolean {
+        if (value == null) {
+            return true
+        }
+
+        return value.length <= maxLength &&
+                !containsUnsafeControlCharacters(value)
+    }
+
+    private fun containsUnsafeControlCharacters(value: String): Boolean {
+        return value.any { character ->
+            character.code < 32 &&
+                    character != '\n' &&
+                    character != '\r' &&
+                    character != '\t'
+        }
     }
 }

@@ -1,0 +1,14 @@
+CREATE TABLE IF NOT EXISTS collection_cards (
+    id INTEGER GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
+    collection_id INTEGER NOT NULL,
+    card_id INTEGER NOT NULL,
+    quantity INTEGER NOT NULL,
+    card_condition VARCHAR(200) NOT NULL,
+    is_foil BOOLEAN NOT NULL DEFAULT FALSE,
+    language VARCHAR(200) NOT NULL,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+
+    FOREIGN KEY (collection_id) REFERENCES user_collections(id) ON DELETE CASCADE,
+    FOREIGN KEY (card_id) REFERENCES cards(id)
+    );

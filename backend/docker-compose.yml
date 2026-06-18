@@ -14,9 +14,13 @@ services:
       DB_URL: jdbc:postgresql://database:5432/card_collector
       DB_USER: admin
       DB_PASSWORD: ccDB1!
+      RUN_MIGRATIONS: "false"
+      SEED_DATABASE: "false"
 
     depends_on:
-      - database
+      database:
+        condition: service_healthy
+    restart: on-failure
 
   database:
     # docker compose exec database psql -U admin -d card_collector
@@ -38,6 +42,12 @@ services:
 
     ports:
       - "5432:5432"
+
+    healthcheck:
+      test: [ "CMD-SHELL", "pg_isready -U admin -d card_collector" ]
+      interval: 5s
+      timeout: 5s
+      retries: 10
 
 volumes:
   db_data:

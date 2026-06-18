@@ -9,7 +9,7 @@ class UserCollectionRepository {
         val collections = mutableListOf<UserCollectionResponse>()
 
         val sql = """
-            SELECT collection_id, collection_name, game_type
+            SELECT id, collection_name, game_type
             FROM user_collections
             WHERE user_id = ?
             ORDER BY created_at DESC
@@ -23,7 +23,7 @@ class UserCollectionRepository {
                     while (resultSet.next()) {
                         collections.add(
                             UserCollectionResponse(
-                                collectionId = resultSet.getInt("collection_id"),
+                                collectionId = resultSet.getInt("id"),
                                 collectionName = resultSet.getString("collection_name"),
                                 gameType = resultSet.getString("game_type")
                             )
@@ -45,7 +45,7 @@ class UserCollectionRepository {
             INSERT INTO user_collections
             (user_id, collection_name, game_type)
             VALUES (?, ?, ?)
-            RETURNING collection_id, collection_name, game_type
+            RETURNING id, collection_name, game_type
         """.trimIndent()
 
         Database.connect().use { connection ->
@@ -57,7 +57,7 @@ class UserCollectionRepository {
                 statement.executeQuery().use { resultSet ->
                     if (resultSet.next()) {
                         return UserCollectionResponse(
-                            collectionId = resultSet.getInt("collection_id"),
+                            collectionId = resultSet.getInt("id"),
                             collectionName = resultSet.getString("collection_name"),
                             gameType = resultSet.getString("game_type")
                         )
@@ -96,10 +96,10 @@ class UserCollectionRepository {
                 if (collectionCardsTableExists) {
                     val deleteCardsSql = """
                     DELETE FROM collection_cards
-                    WHERE collection_id IN (
-                        SELECT collection_id
+                    WHERE id IN (
+                        SELECT id
                         FROM user_collections
-                        WHERE collection_id = ?
+                        WHERE id = ?
                         AND user_id = ?
                     )
                 """.trimIndent()
@@ -113,7 +113,7 @@ class UserCollectionRepository {
 
                 val deleteCollectionSql = """
                 DELETE FROM user_collections
-                WHERE collection_id = ?
+                WHERE id = ?
                 AND user_id = ?
             """.trimIndent()
 

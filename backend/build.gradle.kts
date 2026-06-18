@@ -58,7 +58,7 @@ tasks.register("quality") {
 }
 
 application {
-    mainClass.set("com.example.MainKt")
+    mainClass.set("MainKt")
 }
 
 tasks.test {

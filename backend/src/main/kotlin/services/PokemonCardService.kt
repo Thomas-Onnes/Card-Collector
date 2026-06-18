@@ -4,7 +4,6 @@ import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
 import external.tcgdex.TcgDexClient
 import external.tcgdex.dto.TcgDexCardDto
 import external.tcgdex.mapper.TcgDexCardMapper
-import models.Card
 import models.PokemonCard
 import repositories.CardRepository
 import repositories.PokemonCardRepository

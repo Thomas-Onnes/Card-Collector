@@ -9,6 +9,8 @@ CREATE TABLE IF NOT EXISTS collection_cards (
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
 
+    UNIQUE(collection_id, card_id, is_foil, language, card_condition),
+
     FOREIGN KEY (collection_id) REFERENCES user_collections(id),
     FOREIGN KEY (card_id) REFERENCES cards(id)
 )

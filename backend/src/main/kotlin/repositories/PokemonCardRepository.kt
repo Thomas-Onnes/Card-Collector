@@ -15,13 +15,11 @@ class PokemonCardRepository (
     rarity,
     types,
     evolves_from,
-    set_name,
-    set_code,
     collector_number,
     artist,
     raw_json
     )
-    VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+    VALUES (?, ?, ?, ?, ?, ?, ?, ?)
     """.trimIndent()
 
     fun findAll(): List<PokemonCard> {
@@ -31,12 +29,11 @@ class PokemonCardRepository (
         while(result.next()) {
             val pokemonCard = PokemonCard (
                 result.getInt("card_id"),
+                result.getInt("set_id"),
                 result.getInt("hp"),
                 PokemonRarity.valueOf(result.getString("rarity")),
                 result.getString("types"),
                 result.getString("evolves_from"),
-                result.getString("set_name"),
-                result.getString("set_code"),
                 result.getString("collector_number"),
                 result.getString("artist"),
                 result.getString("raw_json")
@@ -54,11 +51,9 @@ class PokemonCardRepository (
         statement.setString(3, pokemonCard.rarity.toString())
         statement.setString(4, pokemonCard.types)
         statement.setString(5, pokemonCard.evolvesFrom)
-        statement.setString(6, pokemonCard.setName)
-        statement.setString(7, pokemonCard.setCode)
-        statement.setString(8, pokemonCard.collectorNumber)
-        statement.setString(9, pokemonCard.artist)
-        statement.setString(10, pokemonCard.rawJson)
+        statement.setString(6, pokemonCard.collectorNumber)
+        statement.setString(7, pokemonCard.artist)
+        statement.setString(8, pokemonCard.rawJson)
 
         statement.executeUpdate()
         statement.close()

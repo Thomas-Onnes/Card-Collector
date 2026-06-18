@@ -31,7 +31,7 @@ class LocalPokemonDataSource {
             ?.bufferedReader()
             ?.readText()
             ?: throw IllegalStateException(
-                "sets.json not found"
+                "cards.json not found"
             )
 
         return objectMapper.readValue<List<TcgDexCardDto>>(json)

@@ -8,7 +8,10 @@ import java.net.http.HttpRequest
 import java.net.http.HttpResponse
 import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
 import com.fasterxml.jackson.module.kotlin.readValue
+import exceptions.SetNotFoundException
 import external.tcgdex.dto.TcgDexCardResponse
+import external.tcgdex.dto.TcgDexSetDto
+import external.tcgdex.dto.TcgDexSetResponse
 
 class TcgDexClient {
 
@@ -45,6 +48,39 @@ class TcgDexClient {
            404 -> { throw CardNotFoundException("Card is not found") }
 
            else -> { throw IllegalStateException("The API has an issue") }
+        }
+    }
+
+    fun getSet(setId: String,languageCode: String = "en"): TcgDexSetResponse {
+        val endpoint = "$baseUrl/$languageCode/sets/$setId"
+
+        val request = HttpRequest.newBuilder()
+            .uri(URI.create(endpoint))
+            .GET()
+            .build()
+
+        val response = client.send(
+            request, HttpResponse.BodyHandlers.ofString()
+        )
+
+        return when (response.statusCode()) {
+
+            200 -> {
+                val responseBody = response.body()
+                val dto = objectMapper.readValue<TcgDexSetDto>(
+                    responseBody
+                )
+
+                TcgDexSetResponse(
+                    dto = dto,
+                    rawJson = responseBody
+                )
+            }
+
+            404 -> { throw SetNotFoundException("Card is not found")
+            }
+
+            else -> { throw IllegalStateException("The API has an issue") }
         }
     }
 }

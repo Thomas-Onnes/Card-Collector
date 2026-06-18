@@ -1,8 +1,10 @@
 package external.tcgdex.mapper
 
 import external.tcgdex.dto.TcgDexCardDto
+import external.tcgdex.dto.TcgDexSetDto
 import models.Card
 import models.PokemonCard
+import models.PokemonSet
 import models.enums.PokemonRarity
 
 class TcgDexCardMapper {
@@ -10,12 +12,11 @@ class TcgDexCardMapper {
     fun toPokemonCard(dto: TcgDexCardDto, rawJson: String): PokemonCard {
         return PokemonCard(
             cardId = null,
+            setId = dto.set.id,
             hp = dto.hp,
             rarity = mapRarity(dto.rarity),
             types = dto.types?.joinToString(", ") ?: "",
             evolvesFrom = dto.evolveFrom,
-            setName = dto.set.name,
-            setCode = dto.set.id,
             collectorNumber = dto.localId,
             artist = dto.illustrator,
             rawJson = rawJson
@@ -43,6 +44,16 @@ class TcgDexCardMapper {
             externalApiId = dto.id,
             name = dto.name,
             imageUrl = dto.image
+        )
+    }
+
+    fun toSet(dto: TcgDexSetDto): PokemonSet {
+        return PokemonSet(
+            id = null,
+            tcgDexId = dto.id,
+            name = dto.name,
+            series = dto.series,
+            releaseDate = dto.releaseDate
         )
     }
 }

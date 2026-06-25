@@ -1,6 +1,7 @@
 package models
 
 import models.enums.MagicTheGatheringRarity
+import java.math.BigDecimal
 
 data class MagicTheGatheringCard (
     val id: Int?,
@@ -12,6 +13,7 @@ data class MagicTheGatheringCard (
     val manaCost: String?,
     val typeLine: String?,
     val illustrator: String?,
+    val priceEur: BigDecimal?,
 
     val isCreature: Boolean,
     val isInstant: Boolean,

@@ -16,6 +16,8 @@ import pokemon.LocalPokemonDataSource
 import repositories.MagicTheGatheringCardRepository
 import repositories.MagicTheGatheringSetRepository
 import services.MagicTheGatheringSyncService
+import services.MagicTheGatheringPriceUpdateService
+import services.MagicTheGatheringPriceUpdateScheduler
 
 fun main() {
     val connection = DatabaseConnection.getConnection()
@@ -55,6 +57,17 @@ fun main() {
     magicSyncService.syncNewSetsAndCards()
 
     println("Magic The Gathering sync finished")
+
+    val priceUpdateService = MagicTheGatheringPriceUpdateService(
+        scryfallClient,
+        magicCardRepository
+    )
+
+    val priceUpdateScheduler = MagicTheGatheringPriceUpdateScheduler(
+        priceUpdateService
+    )
+
+    priceUpdateScheduler.start()
 
     val localPokemonDataSource = LocalPokemonDataSource()
     val tcgDexClient = TcgDexClient()

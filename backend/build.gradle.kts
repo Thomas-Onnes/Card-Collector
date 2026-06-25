@@ -24,6 +24,7 @@ dependencies {
     implementation("org.postgresql:postgresql:42.7.7")
     implementation("io.github.cdimascio:dotenv-kotlin:6.5.1")
     implementation("com.fasterxml.jackson.module:jackson-module-kotlin:2.18.0")
+    implementation(kotlin("stdlib-jdk8"))
 }
 
 tasks.test {
@@ -52,4 +53,7 @@ tasks.register("quality") {
     group = "verification"
     description = "Runs all code quality tools."
     dependsOn("ktlintCheck", "detekt")
+}
+kotlin {
+    jvmToolchain(21)
 }

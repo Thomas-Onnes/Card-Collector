@@ -3,6 +3,7 @@ package repositories
 import models.MagicTheGatheringCard
 import models.enums.MagicTheGatheringRarity
 import java.sql.Connection
+import java.math.BigDecimal
 
 class MagicTheGatheringCardRepository(
     private val databaseConnection: Connection
@@ -18,6 +19,7 @@ class MagicTheGatheringCardRepository(
             mana_cost,
             type_line,
             illustrator,
+            price_eur,
             is_creature,
             is_instant,
             is_sorcery,
@@ -31,7 +33,7 @@ class MagicTheGatheringCardRepository(
             is_battle,
             is_kindred
         )
-        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
     """.trimIndent()
 
     private val findByScryfallIdQuery = """
@@ -52,19 +54,20 @@ class MagicTheGatheringCardRepository(
         statement.setString(7, card.manaCost)
         statement.setString(8, card.typeLine)
         statement.setString(9, card.illustrator)
+        statement.setBigDecimal(10, card.priceEur)
 
-        statement.setBoolean(10, card.isCreature)
-        statement.setBoolean(11, card.isInstant)
-        statement.setBoolean(12, card.isSorcery)
-        statement.setBoolean(13, card.isEnchantment)
-        statement.setBoolean(14, card.isArtifact)
-        statement.setBoolean(15, card.isLand)
-        statement.setBoolean(16, card.isPlaneswalker)
-        statement.setBoolean(17, card.isLegendary)
-        statement.setBoolean(18, card.isSaga)
-        statement.setBoolean(19, card.isRoom)
-        statement.setBoolean(20, card.isBattle)
-        statement.setBoolean(21, card.isKindred)
+        statement.setBoolean(11, card.isCreature)
+        statement.setBoolean(12, card.isInstant)
+        statement.setBoolean(13, card.isSorcery)
+        statement.setBoolean(14, card.isEnchantment)
+        statement.setBoolean(15, card.isArtifact)
+        statement.setBoolean(16, card.isLand)
+        statement.setBoolean(17, card.isPlaneswalker)
+        statement.setBoolean(18, card.isLegendary)
+        statement.setBoolean(19, card.isSaga)
+        statement.setBoolean(20, card.isRoom)
+        statement.setBoolean(21, card.isBattle)
+        statement.setBoolean(22, card.isKindred)
 
         statement.executeUpdate()
         statement.close()
@@ -90,6 +93,7 @@ class MagicTheGatheringCardRepository(
                 manaCost = result.getString("mana_cost"),
                 typeLine = result.getString("type_line"),
                 illustrator = result.getString("illustrator"),
+                priceEur = result.getBigDecimal("price_eur"),
 
                 isCreature = result.getBoolean("is_creature"),
                 isInstant = result.getBoolean("is_instant"),
@@ -115,5 +119,47 @@ class MagicTheGatheringCardRepository(
         statement.close()
 
         return null
+    }
+
+    private val updatePriceQuery = """
+    UPDATE magic_the_gathering_cards
+    SET
+        price_eur = ?,
+        price_updated_at = CURRENT_TIMESTAMP
+    WHERE scryfall_id = ?
+""".trimIndent()
+
+    fun updatePrice(
+        scryfallId: String,
+        priceEur: BigDecimal?
+    ) {
+        val statement = databaseConnection.prepareStatement(updatePriceQuery)
+
+        statement.setBigDecimal(1, priceEur)
+        statement.setString(2, scryfallId)
+
+        statement.executeUpdate()
+        statement.close()
+    }
+
+    private val findAllScryfallIdsQuery = """
+    SELECT scryfall_id
+    FROM magic_the_gathering_cards
+""".trimIndent()
+
+    fun findAllScryfallIds(): List<String> {
+        val statement = databaseConnection.createStatement()
+        val result = statement.executeQuery(findAllScryfallIdsQuery)
+
+        val ids = arrayListOf<String>()
+
+        while (result.next()) {
+            ids.add(result.getString("scryfall_id"))
+        }
+
+        result.close()
+        statement.close()
+
+        return ids
     }
 }

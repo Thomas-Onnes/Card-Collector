@@ -24,4 +24,6 @@ data class ScryfallCardDto (
 
     @JsonProperty("artist")
     val illustrator: String?,
+
+    val prices: ScryfallPricesDto?
 )

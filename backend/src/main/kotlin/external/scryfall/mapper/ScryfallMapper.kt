@@ -17,6 +17,7 @@ import models.enums.MagicTheGatheringRarity
             manaCost = manaCost,
             typeLine = typeLine,
             illustrator = illustrator,
+            priceEur = prices?.eur?.toBigDecimalOrNull(),
 
             isCreature = type.contains("creature"),
             isInstant = type.contains("instant"),

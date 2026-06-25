@@ -13,6 +13,9 @@ import java.net.http.HttpRequest
 import java.net.http.HttpResponse
 import java.nio.charset.StandardCharsets
 import java.util.UUID
+import com.fasterxml.jackson.databind.ObjectMapper
+import external.scryfall.dto.ScryfallCollectionRequestDto
+import external.scryfall.dto.ScryfallIdentifierDto
 
 class ScryfallClient {
 
@@ -226,5 +229,55 @@ class ScryfallClient {
                     character != '\r' &&
                     character != '\t'
         }
+    }
+
+    fun getCardsByIds(scryfallIds: List<String>): List<ScryfallCardDto> {
+        val cards = arrayListOf<ScryfallCardDto>()
+
+        val chunks = scryfallIds.chunked(75)
+
+        for (chunk in chunks) {
+            val endpoint = "$baseUrl/cards/collection"
+
+            val requestBody = ScryfallCollectionRequestDto(
+                identifiers = chunk.map { id ->
+                    ScryfallIdentifierDto(id = id)
+                }
+            )
+
+            val jsonBody = objectMapper.writeValueAsString(requestBody)
+
+            val request = HttpRequest.newBuilder()
+                .uri(URI.create(endpoint))
+                .header("Accept", "application/json")
+                .header("Content-Type", "application/json")
+                .header("User-Agent", "Card-Collector/1.0")
+                .POST(HttpRequest.BodyPublishers.ofString(jsonBody))
+                .build()
+
+            val response = client.send(
+                request,
+                HttpResponse.BodyHandlers.ofString()
+            )
+
+            if (response.statusCode() != 200) {
+                throw IllegalStateException(
+                    "Scryfall API error while updating prices: ${response.statusCode()} ${response.body()}"
+                )
+            }
+
+            val listResponse =
+                objectMapper.readValue<ScryfallListResponse<ScryfallCardDto>>(
+                    response.body()
+                )
+
+            cards.addAll(listResponse.data)
+
+            if (chunk != chunks.last()) {
+                Thread.sleep(600)
+            }
+        }
+
+        return cards
     }
 }

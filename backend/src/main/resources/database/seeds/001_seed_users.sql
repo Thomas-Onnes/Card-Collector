@@ -1,11 +1,2 @@
-INSERT INTO users(
-    username,
-    email,
-    password_hash
-) VALUES (
-'test',
-'test@gmail.com',
-'test123'
-)
-ON CONFLICT (email)
-DO NOTHING;
+-- Users are not seeded for security reasons.
+-- Create users through the Android app/register endpoint so passwords are hashed correctly.

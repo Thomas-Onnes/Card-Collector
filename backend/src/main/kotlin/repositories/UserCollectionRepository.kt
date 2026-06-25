@@ -73,67 +73,18 @@ class UserCollectionRepository {
         userId: Int,
         collectionId: Int
     ): Boolean {
+        val sql = """
+            DELETE FROM user_collections
+            WHERE id = ?
+            AND user_id = ?
+        """.trimIndent()
+
         Database.connect().use { connection ->
-            connection.autoCommit = false
+            connection.prepareStatement(sql).use { statement ->
+                statement.setInt(1, collectionId)
+                statement.setInt(2, userId)
 
-            try {
-                val collectionCardsTableExists =
-                    connection.prepareStatement(
-                        """
-                    SELECT EXISTS (
-                        SELECT 1
-                        FROM information_schema.tables
-                        WHERE table_schema = 'public'
-                        AND table_name = 'collection_cards'
-                    )
-                    """.trimIndent()
-                    ).use { statement ->
-                        statement.executeQuery().use { resultSet ->
-                            resultSet.next() && resultSet.getBoolean(1)
-                        }
-                    }
-
-                if (collectionCardsTableExists) {
-                    val deleteCardsSql = """
-                    DELETE FROM collection_cards
-                    WHERE id IN (
-                        SELECT id
-                        FROM user_collections
-                        WHERE id = ?
-                        AND user_id = ?
-                    )
-                """.trimIndent()
-
-                    connection.prepareStatement(deleteCardsSql).use { statement ->
-                        statement.setInt(1, collectionId)
-                        statement.setInt(2, userId)
-                        statement.executeUpdate()
-                    }
-                }
-
-                val deleteCollectionSql = """
-                DELETE FROM user_collections
-                WHERE id = ?
-                AND user_id = ?
-            """.trimIndent()
-
-                val deletedRows =
-                    connection.prepareStatement(deleteCollectionSql).use { statement ->
-                        statement.setInt(1, collectionId)
-                        statement.setInt(2, userId)
-                        statement.executeUpdate()
-                    }
-
-                connection.commit()
-
-                return deletedRows > 0
-
-            } catch (e: Exception) {
-                connection.rollback()
-                throw e
-
-            } finally {
-                connection.autoCommit = true
+                return statement.executeUpdate() > 0
             }
         }
     }

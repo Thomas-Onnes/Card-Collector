@@ -1,10 +1,1 @@
-INSERT INTO user_collections (
-    user_id,
-    collection_name,
-    game_type
-) VALUES (
-    1,
-    'Test Collection',
-    'pokemon'
-         )
-    ON CONFLICT DO NOTHING;
+-- User collections are not seeded because they depend on real registered users.

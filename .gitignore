@@ -33,3 +33,11 @@ Thumbs.db
 
 # Logs
 *.log
+# Android
+android-app/.gradle/
+android-app/build/
+android-app/app/build/
+android-app/local.properties
+android-app/.idea/
+android-app/captures/
+android-app/.externalNativeBuild/

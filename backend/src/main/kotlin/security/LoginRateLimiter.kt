@@ -6,7 +6,7 @@ import java.util.concurrent.ConcurrentHashMap
 object LoginRateLimiter {
 
     private const val MAX_ATTEMPTS_PER_ACCOUNT = 5
-    private const val MAX_ATTEMPTS_PER_IP = 8
+    private const val MAX_ATTEMPTS_PER_IP = 50
 
     private const val WINDOW_MILLIS = 60_000L
     private const val LOCK_MILLIS = 5 * 60_000L

@@ -1,4 +1,3 @@
-import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
 import config.Environment.dbMigration
 import core.App
 import database.DatabaseConnection
@@ -24,12 +23,12 @@ fun main() {
     println("Database connected")
 
     try {
-        if (dbMigration.equals("true")) {
+        if (dbMigration) {
             println("Running migrations")
             val migrationRunner = MigrationRunner(connection)
             migrationRunner.run()
         }
-        if (dbSeed.equals("true")) {
+        if (dbSeed) {
             println("Running seeders")
             val databaseSeeder = DatabaseSeeder(connection)
             databaseSeeder.run()

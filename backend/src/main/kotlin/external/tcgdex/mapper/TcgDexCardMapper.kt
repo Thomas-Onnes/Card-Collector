@@ -19,6 +19,7 @@ class TcgDexCardMapper {
             evolvesFrom = dto.evolveFrom,
             collectorNumber = dto.localId,
             artist = dto.illustrator,
+            priceEur = dto.pricing?.cardMarket?.avg,
             rawJson = rawJson
         )
     }

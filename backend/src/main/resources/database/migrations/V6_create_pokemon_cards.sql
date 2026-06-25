@@ -7,7 +7,10 @@ CREATE TABLE IF NOT EXISTS pokemon_cards (
     evolves_from varchar(200),
     collector_number varchar(200) NOT NULL,
     artist varchar(200),
+    price_eur NUMERIC(10, 2),
     raw_json TEXT,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     UNIQUE(set_id, collector_number),
 
     FOREIGN KEY (card_id) REFERENCES cards(id),

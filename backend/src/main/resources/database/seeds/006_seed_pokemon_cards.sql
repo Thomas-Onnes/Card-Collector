@@ -7,6 +7,7 @@ INSERT INTO pokemon_cards(
     evolves_from,
     collector_number,
     artist,
+    price_eur,
     raw_json
 ) values (
 1,
@@ -17,6 +18,7 @@ INSERT INTO pokemon_cards(
 'Charmeleon',
 '006',
 'Mitsuhiro Arita',
+null,
 'json'
 )
 ON CONFLICT (set_id, collector_number)

@@ -21,6 +21,10 @@ object Environment {
             ?: dotenv[key]
     }
 
+    private fun getOptionalBoolean(key: String): Boolean {
+        return getOptionalValue(key)?.toBoolean() ?: false
+    }
+
     val dbUrl: String =
         getRequiredValue("DB_URL")
 
@@ -30,9 +34,18 @@ object Environment {
     val dbPassword: String =
         getRequiredValue("DB_PASSWORD")
 
-    val dbMigration: String? =
-        getOptionalValue("RUN_MIGRATION")
+    val dbMigration: Boolean =
+        getOptionalBoolean("RUN_MIGRATION")
 
-    val dbSeed: String? =
-        getOptionalValue("SEED_DATABASE")
+    val dbSeed: Boolean =
+        getOptionalBoolean("SEED_DATABASE")
+
+    val importAllPokemonSets: Boolean =
+        getOptionalBoolean("IMPORT_ALL_POKEMON_SETS")
+
+    val selectedPokemonSets: List<String> =
+        getOptionalValue("SELECTED_POKEMON_SETS")
+            ?.split(",")
+            ?.map { it.trim() }
+            ?: emptyList()
 }

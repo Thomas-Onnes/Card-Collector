@@ -11,15 +11,17 @@ class PokemonCardRepository (
     private val saveQuery = """
     INSERT INTO pokemon_cards (
     card_id,
+    set_id,
     hp,
     rarity,
     types,
     evolves_from,
     collector_number,
     artist,
+    price_eur,
     raw_json
     )
-    VALUES (?, ?, ?, ?, ?, ?, ?, ?)
+    VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
     """.trimIndent()
 
     fun findAll(): List<PokemonCard> {
@@ -36,6 +38,7 @@ class PokemonCardRepository (
                 result.getString("evolves_from"),
                 result.getString("collector_number"),
                 result.getString("artist"),
+                result.getBigDecimal("price_eur"),
                 result.getString("raw_json")
             )
             pokemonCards.add(pokemonCard)
@@ -47,13 +50,15 @@ class PokemonCardRepository (
         val statement = databaseConnection.prepareStatement(saveQuery)
 
         statement.setInt(1, generatedCardId)
-        statement.setObject(2, pokemonCard.hp)
-        statement.setString(3, pokemonCard.rarity.toString())
-        statement.setString(4, pokemonCard.types)
-        statement.setString(5, pokemonCard.evolvesFrom)
-        statement.setString(6, pokemonCard.collectorNumber)
-        statement.setString(7, pokemonCard.artist)
-        statement.setString(8, pokemonCard.rawJson)
+        statement.setInt(2, pokemonCard.setId)
+        statement.setObject(3, pokemonCard.hp)
+        statement.setString(4, pokemonCard.rarity.toString())
+        statement.setString(5, pokemonCard.types)
+        statement.setString(6, pokemonCard.evolvesFrom)
+        statement.setString(7, pokemonCard.collectorNumber)
+        statement.setString(8, pokemonCard.artist)
+        statement.setBigDecimal(9, pokemonCard.priceEur)
+        statement.setString(10, pokemonCard.rawJson)
 
         statement.executeUpdate()
         statement.close()

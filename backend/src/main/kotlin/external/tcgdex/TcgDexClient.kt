@@ -12,6 +12,7 @@ import exceptions.SetNotFoundException
 import external.tcgdex.dto.TcgDexCardResponse
 import external.tcgdex.dto.TcgDexSetDto
 import external.tcgdex.dto.TcgDexSetResponse
+import config.Environment.importAllPokemonSets
 
 class TcgDexClient {
 
@@ -83,4 +84,37 @@ class TcgDexClient {
             else -> { throw IllegalStateException("The API has an issue") }
         }
     }
+//
+//    fun getAllSets(languageCode: String = "en"):List<TcgDexSetResponse> {
+//        val endpoint = "$baseUrl/$languageCode/sets"
+//
+//        val request = HttpRequest.newBuilder()
+//            .uri(URI.create(endpoint))
+//            .GET()
+//            .build()
+//
+//        val response = client.send(
+//            request, HttpResponse.BodyHandlers.ofString()
+//        )
+//
+//        return when (response.statusCode()) {
+//
+//            200 -> {
+//                val responseBody = response.body()
+//                val dto = objectMapper.readValue<List<TcgDexSetDto>>(
+//                    responseBody
+//                )
+//
+//                TcgDexSetResponse(
+//                    dto = dto,
+//                    rawJson = responseBody
+//                )
+//            }
+//
+//            404 -> { throw SetNotFoundException("Card is not found")
+//            }
+//
+//            else -> { throw IllegalStateException("The API has an issue") }
+//        }
+//    }
 }

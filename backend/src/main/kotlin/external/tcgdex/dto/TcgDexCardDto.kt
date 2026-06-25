@@ -12,5 +12,6 @@ data class TcgDexCardDto (
     val illustrator: String?,
     val localId: String,
     val image: String?,
-    val set: TcgDexSetDto
+    val set: TcgDexSetDto,
+    val pricing: TcgDexPricingDto?
 )

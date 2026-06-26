@@ -10,13 +10,13 @@ class PokemonSetRepository(
     private val findAllQuery = "SELECT * FROM pokemon_sets"
     private val saveQuery = """
     INSERT INTO pokemon_sets (
-    id,
     tcgdex_id,
     name,
     series,
     release_date
     )
-    VALUES (?, ?, ?, ?, ?)
+    VALUES (?, ?, ?, ?)
+    RETURNING id
     """.trimIndent()
 
     fun findAll(): List<PokemonSet>{
@@ -26,7 +26,7 @@ class PokemonSetRepository(
         while(result.next()) {
             val pokemonSet = PokemonSet(
                 result.getInt("id"),
-                result.getInt("tcgdex_id"),
+                result.getString("tcgdex_id"),
                 result.getString("name"),
                 result.getString("series"),
                 result.getDate("release_date")
@@ -37,19 +37,22 @@ class PokemonSetRepository(
     }
 
 
-    fun save(pokemonSet: PokemonSet, generatedSetId: Int) {
+    fun save(pokemonSet: PokemonSet): Int {
         val statement = databaseConnection.prepareStatement(saveQuery)
 
-        statement.setInt(1, generatedSetId)
-        statement.setObject(2, pokemonSet.tcgDexId)
-        statement.setString(3, pokemonSet.name)
-        statement.setString(4, pokemonSet.series)
-        statement.setDate(5, pokemonSet.releaseDate)
+        statement.setString(1, pokemonSet.tcgDexId)
+        statement.setString(2, pokemonSet.name)
+        statement.setString(3, pokemonSet.series)
+        statement.setDate(4, pokemonSet.releaseDate)
 
+        val result = statement.executeQuery()
 
-        statement.executeUpdate()
+        result.next()
+
+        val generatedCardId = result.getInt("id")
+
         statement.close()
 
-        return
+        return generatedCardId
     }
 }

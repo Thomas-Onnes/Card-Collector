@@ -12,6 +12,9 @@ services:
       DB_PASSWORD: ${DB_PASSWORD:-ccDB1!}
       RUN_MIGRATION: ${RUN_MIGRATION:-true}
       SEED_DATABASE: ${SEED_DATABASE:-true}
+
+      IMPORT_ALL_POKEMON_SETS: ${IMPORT_ALL_POKEMON_SETS:-false}
+      SELECTED_POKEMON_SETS: ${SELECTED_POKEMON_SETS:-base1,base2,base3,base4,base5}
     depends_on:
       database:
         condition: service_healthy

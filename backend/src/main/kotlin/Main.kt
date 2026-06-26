@@ -1,3 +1,4 @@
+import config.Environment
 import config.Environment.dbMigration
 import core.App
 import database.DatabaseConnection
@@ -6,14 +7,16 @@ import external.tcgdex.TcgDexClient
 import external.tcgdex.mapper.TcgDexCardMapper
 import repositories.CardRepository
 import repositories.PokemonCardRepository
-import services.PokemonCardService
 import config.Environment.dbSeed
+import config.Environment.selectedPokemonSets
 import database.DatabaseSeeder
-import database.PokemonSeeder
 import external.scryfall.ScryfallClient
-import pokemon.LocalPokemonDataSource
+import external.tcgdex.mapper.TcgDexSetMapper
+import pokemon.import.PokemonImportService
+import pokemon.import.PokemonSetProvider
 import repositories.MagicTheGatheringCardRepository
 import repositories.MagicTheGatheringSetRepository
+import repositories.PokemonSetRepository
 import services.MagicTheGatheringSyncService
 import services.MagicTheGatheringPriceUpdateService
 import services.MagicTheGatheringPriceUpdateScheduler
@@ -21,7 +24,8 @@ import services.MagicTheGatheringPriceUpdateScheduler
 fun main() {
     val connection = DatabaseConnection.getConnection()
     println("Database connected")
-
+    println(System.getenv("SELECTED_POKEMON_SETS"))
+    println(Environment.selectedPokemonSets)
     try {
         if (dbMigration) {
             println("Running migrations")
@@ -42,61 +46,65 @@ fun main() {
 
     println("Syncing Magic The Gathering sets and cards")
 
-    val scryfallClient = ScryfallClient()
-    val magicSetRepository = MagicTheGatheringSetRepository(connection)
-    val magicCardRepository = MagicTheGatheringCardRepository(connection)
+//    val scryfallClient = ScryfallClient()
+//    val magicSetRepository = MagicTheGatheringSetRepository(connection)
+//    val magicCardRepository = MagicTheGatheringCardRepository(connection)
     val cardRepository = CardRepository(connection)
 
-    val magicSyncService = MagicTheGatheringSyncService(
-        scryfallClient,
-        magicSetRepository,
-        cardRepository,
-        magicCardRepository
-    )
+//    val magicSyncService = MagicTheGatheringSyncService(
+//        scryfallClient,
+//        magicSetRepository,
+//        cardRepository,
+//        magicCardRepository
+//    )
 
-    magicSyncService.syncNewSetsAndCards()
+//    magicSyncService.syncNewSetsAndCards()
 
     println("Magic The Gathering sync finished")
 
-    val priceUpdateService = MagicTheGatheringPriceUpdateService(
-        scryfallClient,
-        magicCardRepository
-    )
+//    val priceUpdateService = MagicTheGatheringPriceUpdateService(
+//        scryfallClient,
+//        magicCardRepository
+//    )
+//
+//    val priceUpdateScheduler = MagicTheGatheringPriceUpdateScheduler(
+//        priceUpdateService
+//    )
+//
+//    priceUpdateScheduler.start()
 
-    val priceUpdateScheduler = MagicTheGatheringPriceUpdateScheduler(
-        priceUpdateService
-    )
-
-    priceUpdateScheduler.start()
-
-    val localPokemonDataSource = LocalPokemonDataSource()
-    val tcgDexClient = TcgDexClient()
-    val mapper = TcgDexCardMapper()
+    println("Testing the new code")
+    val pokemonSetRepository = PokemonSetRepository(connection)
     val pokemonCardRepository = PokemonCardRepository(connection)
 
-    val pokemonCardService = PokemonCardService(tcgDexClient, mapper, cardRepository, pokemonCardRepository)
-    val pokemonSeeder = PokemonSeeder(pokemonCardService, localPokemonDataSource)
+    val tcgDexClient = TcgDexClient()
 
-    pokemonSeeder.run()
+    val pokemonSetProvider = PokemonSetProvider(tcgDexClient)
 
+    val pokemonSetMapper = TcgDexSetMapper()
+    val pokemonCardMapper = TcgDexCardMapper()
+
+    val pokemonImportService = PokemonImportService(
+        pokemonSetProvider = pokemonSetProvider,
+        tcgDexClient = tcgDexClient,
+        pokemonSetRepository = pokemonSetRepository,
+        pokemonSetMapper = pokemonSetMapper,
+        cardMapper = pokemonCardMapper,
+        cardRepository = cardRepository,
+        pokemonCardRepository = pokemonCardRepository
+    )
+
+    val sets = pokemonSetProvider.getSetsToImport()
+    pokemonImportService.import()
+    println("Aantal sets: ${sets.size}")
+
+    sets.forEach {
+        println(it.id)
+    }
+
+    println("END of the new tested code")
+//    pokemonImportService.import()
     App(connection).start()
-
-//    val mapper = TcgDexCardMapper()
-//    val client = TcgDexClient()
-//    val cardRepository = CardRepository(connection)
-//    val pokemonCardRepository = PokemonCardRepository(connection)
-//
-//
-//    val service = PokemonCardService (
-//        client,
-//        mapper,
-//        cardRepository,
-//        pokemonCardRepository
-//    )
-//
-//    service.importCard(
-//        "swsh3-136"
-//    )
 
     connection.close()
 

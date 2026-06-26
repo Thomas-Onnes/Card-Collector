@@ -46,10 +46,10 @@ class PokemonCardRepository (
         return pokemonCards
     }
 
-    fun save(pokemonCard: PokemonCard, generatedCardId: Int) {
+    fun save(pokemonCard: PokemonCard) {
         val statement = databaseConnection.prepareStatement(saveQuery)
 
-        statement.setInt(1, generatedCardId)
+        statement.setInt(1, pokemonCard.cardId!!)
         statement.setInt(2, pokemonCard.setId)
         statement.setObject(3, pokemonCard.hp)
         statement.setString(4, pokemonCard.rarity.toString())

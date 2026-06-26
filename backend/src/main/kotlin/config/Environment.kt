@@ -45,7 +45,11 @@ object Environment {
 
     val selectedPokemonSets: List<String> =
         getOptionalValue("SELECTED_POKEMON_SETS")
+            ?.also {
+                println("SELECTED_POKEMON_SETS uit .env: $it")
+            }
             ?.split(",")
             ?.map { it.trim() }
             ?: emptyList()
+
 }

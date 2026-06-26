@@ -5,6 +5,7 @@ import com.fasterxml.jackson.annotation.JsonIgnoreProperties
 data class TcgDexSetDto(
     val id: String,
     val name: String,
-    val series: TcgDexSeriesDto,
-    val releaseDate: String
+    val serie: TcgDexSeriesDto,
+    val releaseDate: String,
+    val cards: List<TcgDexCardSummaryDto>
 )

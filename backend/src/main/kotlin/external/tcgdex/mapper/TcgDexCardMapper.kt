@@ -9,10 +9,10 @@ import models.enums.PokemonRarity
 
 class TcgDexCardMapper {
 
-    fun toPokemonCard(dto: TcgDexCardDto, rawJson: String): PokemonCard {
+    fun toPokemonCard(dto: TcgDexCardDto, rawJson: String, generatedCardId: Int, generatedSetId: Int): PokemonCard {
         return PokemonCard(
-            cardId = null,
-            setId = dto.set.id,
+            cardId = generatedCardId,
+            setId = generatedSetId,
             hp = dto.hp,
             rarity = mapRarity(dto.rarity),
             types = dto.types?.joinToString(", ") ?: "",
@@ -45,16 +45,6 @@ class TcgDexCardMapper {
             externalApiId = dto.id,
             name = dto.name,
             imageUrl = dto.image
-        )
-    }
-
-    fun toSet(dto: TcgDexSetDto): PokemonSet {
-        return PokemonSet(
-            id = null,
-            tcgDexId = dto.id,
-            name = dto.name,
-            series = dto.series.name,
-            releaseDate = dto.releaseDate
         )
     }
 }

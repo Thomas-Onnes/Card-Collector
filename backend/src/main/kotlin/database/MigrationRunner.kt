@@ -12,7 +12,8 @@ object MigrationRunner {
         "V5_create_pokemon_sets_table.sql",
         "V6_create_pokemon_cards.sql",
         "V7_create_magic_the_gathering_cards.sql",
-        "V8_create_magic_the_gathering_sets_table.sql"
+        "V8_create_magic_the_gathering_sets_table.sql",
+        "V9_create_api_sync_state_table.sql"
     )
 
     fun run(connection: Connection) {

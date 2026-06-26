@@ -8,6 +8,7 @@ import external.scryfall.ScryfallClient
 import repositories.CardRepository
 import repositories.MagicTheGatheringCardRepository
 import security.TokenService
+import services.BulkCardImportService
 import services.CardImportService
 import services.MagicTheGatheringPriceUpdateService
 import java.net.URLDecoder
@@ -49,6 +50,14 @@ class CardsHandler : HttpHandler {
 
                 path == "/cards/update-prices/mtg" && method == "POST" -> {
                     handleUpdateMagicPrices(exchange)
+                }
+
+                path == "/cards/import/bulk" && method == "POST" -> {
+                    handleBulkImport(exchange)
+                }
+
+                path == "/cards/update-prices/all" && method == "POST" -> {
+                    handleUpdateAllPrices(exchange)
                 }
 
                 else -> {
@@ -151,6 +160,73 @@ class CardsHandler : HttpHandler {
                 exchange,
                 200,
                 gson.toJson(mapOf("message" to "Magic card prices updated"))
+            )
+        }
+    }
+
+
+    private fun handleBulkImport(exchange: HttpExchange) {
+        val queryParams = parseQuery(exchange.requestURI.rawQuery)
+
+        val importPokemon = queryParams["pokemon"]?.toBooleanStrictOrNull() ?: true
+        val importMagic = queryParams["mtg"]?.toBooleanStrictOrNull() ?: true
+        val force = queryParams["force"]?.toBooleanStrictOrNull() ?: true
+        val pokemonMaxCards = queryParams["pokemonMax"]?.toIntOrNull() ?: 0
+        val magicMaxCards = queryParams["mtgMax"]?.toIntOrNull() ?: 0
+        val requestDelayMillis = queryParams["delayMs"]?.toLongOrNull() ?: 0L
+
+        Database.connect().use { connection ->
+            val result = BulkCardImportService(connection).runStartupBulkImport(
+                importPokemon = importPokemon,
+                importMagic = importMagic,
+                forceImport = force,
+                pokemonMaxCards = pokemonMaxCards,
+                magicMaxCards = magicMaxCards,
+                requestDelayMillis = requestDelayMillis
+            )
+
+            HttpUtils.sendJson(
+                exchange,
+                200,
+                gson.toJson(
+                    mapOf(
+                        "message" to "Bulk import finished",
+                        "importedPokemonCards" to result.importedPokemonCards,
+                        "importedMagicCards" to result.importedMagicCards
+                    )
+                )
+            )
+        }
+    }
+
+    private fun handleUpdateAllPrices(exchange: HttpExchange) {
+        val queryParams = parseQuery(exchange.requestURI.rawQuery)
+
+        val updatePokemon = queryParams["pokemon"]?.toBooleanStrictOrNull() ?: true
+        val updateMagic = queryParams["mtg"]?.toBooleanStrictOrNull() ?: true
+        val pokemonMaxCards = queryParams["pokemonMax"]?.toIntOrNull() ?: 0
+        val magicMaxCards = queryParams["mtgMax"]?.toIntOrNull() ?: 0
+        val requestDelayMillis = queryParams["delayMs"]?.toLongOrNull() ?: 0L
+
+        Database.connect().use { connection ->
+            val result = BulkCardImportService(connection).runPriceUpdateImport(
+                updatePokemon = updatePokemon,
+                updateMagic = updateMagic,
+                pokemonMaxCards = pokemonMaxCards,
+                magicMaxCards = magicMaxCards,
+                requestDelayMillis = requestDelayMillis
+            )
+
+            HttpUtils.sendJson(
+                exchange,
+                200,
+                gson.toJson(
+                    mapOf(
+                        "message" to "Bulk price update finished",
+                        "updatedPokemonCards" to result.importedPokemonCards,
+                        "updatedMagicCards" to result.importedMagicCards
+                    )
+                )
             )
         }
     }

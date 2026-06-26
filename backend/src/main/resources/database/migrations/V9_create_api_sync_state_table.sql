@@ -1,0 +1,6 @@
+CREATE TABLE IF NOT EXISTS api_sync_state (
+    sync_name VARCHAR(100) PRIMARY KEY,
+    completed BOOLEAN NOT NULL DEFAULT FALSE,
+    completed_at TIMESTAMP,
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);

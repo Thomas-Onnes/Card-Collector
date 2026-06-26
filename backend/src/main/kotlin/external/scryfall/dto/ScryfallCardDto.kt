@@ -11,6 +11,9 @@ data class ScryfallCardDto (
     @JsonProperty("set")
     val setCode: String,
 
+    @JsonProperty("set_id")
+    val setId: String? = null,
+
     @JsonProperty("set_name")
     val setName: String,
 

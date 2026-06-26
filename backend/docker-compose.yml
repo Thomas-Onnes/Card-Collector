@@ -1,7 +1,5 @@
 services:
-  # docker compose up -d
   backend:
-
     build:
       context: .
 
@@ -14,21 +12,44 @@ services:
       DB_URL: jdbc:postgresql://database:5432/card_collector
       DB_USER: admin
       DB_PASSWORD: ccDB1!
+
       RUN_MIGRATIONS: "true"
-      SEED_DATABASE: "true"
+      SEED_DATABASE: "false"
+
+      # Bulk import options.
+      # true = import all configured game data on startup.
+      BULK_IMPORT_ON_STARTUP: "true"
+
+      # false = only run each first-time bulk import once.
+      # true = run the full bulk import again on every backend startup.
+      FORCE_BULK_IMPORT: "false"
+
+      IMPORT_POKEMON_BULK: "true"
+      IMPORT_MAGIC_BULK: "true"
+
+      # 0 means no limit. Use a small number like 200 while testing.
+      POKEMON_BULK_MAX_CARDS: "200"
+      MTG_BULK_MAX_CARDS: "200"
+
+      # Optional delay between Pokemon detail requests.
+      # 0 is fastest. Use 50 or 100 if TCGdex starts rejecting requests.
+      BULK_IMPORT_REQUEST_DELAY_MS: "0"
+
+      # Price update options.
+      # This re-runs the bulk import later, so prices and card data are updated.
+      AUTO_PRICE_UPDATE: "true"
+      UPDATE_POKEMON_PRICES: "true"
+      UPDATE_MAGIC_PRICES: "true"
+      PRICE_UPDATE_INITIAL_DELAY_MINUTES: "1"
+      PRICE_UPDATE_INTERVAL_MINUTES: "1"
 
     depends_on:
       database:
         condition: service_healthy
+
     restart: on-failure
 
   database:
-    # docker compose exec database psql -U admin -d card_collector
-    # \l om alle databases te zien.
-    # \c card_collector om de database te selecteren.
-    # \dt om alle tables te zien.
-    # \d users om de users tabel structuur te bekijken.
-    # \q om eruit te gaan.
     image: postgres:16-alpine
     container_name: CC_database
 

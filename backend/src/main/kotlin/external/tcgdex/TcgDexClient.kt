@@ -7,6 +7,7 @@ import exceptions.CardNotFoundException
 import exceptions.SetNotFoundException
 import external.tcgdex.dto.TcgDexCardDto
 import external.tcgdex.dto.TcgDexCardResponse
+import external.tcgdex.dto.TcgDexCardSummaryDto
 import external.tcgdex.dto.TcgDexSetDto
 import external.tcgdex.dto.TcgDexSetResponse
 import external.tcgdex.dto.TcgDexSetSummaryDto
@@ -75,6 +76,17 @@ class TcgDexClient {
         return when (response.statusCode()) {
             200 -> objectMapper.readValue<List<TcgDexSetSummaryDto>>(response.body())
             404 -> throw SetNotFoundException("No TCGdex sets found")
+            else -> throw IllegalStateException("TCGdex API error: ${response.statusCode()}")
+        }
+    }
+
+    fun getAllCards(languageCode: String = "en"): List<TcgDexCardSummaryDto> {
+        val endpoint = "$baseUrl/$languageCode/cards"
+        val response = getEndpoint(endpoint)
+
+        return when (response.statusCode()) {
+            200 -> objectMapper.readValue<List<TcgDexCardSummaryDto>>(response.body())
+            404 -> throw CardNotFoundException("No TCGdex cards found")
             else -> throw IllegalStateException("TCGdex API error: ${response.statusCode()}")
         }
     }

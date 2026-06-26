@@ -88,8 +88,8 @@ class BulkCardImportService(
         magicMaxCards: Int,
         requestDelayMillis: Long
     ): BulkImportResult {
-        val importedPokemonCards = if (updatePokemon) {
-            importAllPokemonCards(
+        val updatedPokemonCards = if (updatePokemon) {
+            updatePokemonPriceBatch(
                 maxCards = pokemonMaxCards,
                 requestDelayMillis = requestDelayMillis
             )
@@ -98,7 +98,7 @@ class BulkCardImportService(
             0
         }
 
-        val importedMagicCards = if (updateMagic) {
+        val updatedMagicCards = if (updateMagic) {
             importAllMagicCards(
                 maxCards = magicMaxCards
             )
@@ -108,8 +108,27 @@ class BulkCardImportService(
         }
 
         return BulkImportResult(
-            importedPokemonCards = importedPokemonCards,
-            importedMagicCards = importedMagicCards
+            importedPokemonCards = updatedPokemonCards,
+            importedMagicCards = updatedMagicCards
+        )
+    }
+
+    private fun updatePokemonPriceBatch(
+        maxCards: Int,
+        requestDelayMillis: Long
+    ): Int {
+        val batchSize = if (maxCards > 0) maxCards else 50
+
+        println("Starting Pokemon price update batch. Batch size: $batchSize")
+
+        return PokemonPriceUpdateService(
+            connection = connection,
+            cardRepository = cardRepository,
+            pokemonCardRepository = pokemonCardRepository,
+            tcgDexClient = tcgDexClient
+        ).updateNextBatch(
+            limit = batchSize,
+            requestDelayMillis = requestDelayMillis
         )
     }
 

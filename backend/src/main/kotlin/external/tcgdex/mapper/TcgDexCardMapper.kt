@@ -17,7 +17,7 @@ class TcgDexCardMapper {
             cardId = generatedCardId,
             setId = generatedSetId,
             hp = dto.hp,
-            rarity = mapRarity(dto.rarity),
+            rarity = PokemonRarity.fromApiValue(dto.rarity),
             types = dto.types?.joinToString(", ") ?: "Unknown",
             evolvesFrom = dto.evolveFrom,
             collectorNumber = dto.localId,
@@ -35,23 +35,5 @@ class TcgDexCardMapper {
             name = dto.name,
             imageUrl = dto.image
         )
-    }
-
-    private fun mapRarity(rarity: String?): PokemonRarity {
-        val normalized = rarity
-            ?.trim()
-            ?.uppercase()
-            ?.replace(" ", "_")
-            ?.replace("-", "_")
-            ?: return PokemonRarity.UNKNOWN
-
-        return when {
-            normalized.contains("SECRET") -> PokemonRarity.SECRET_RARE
-            normalized.contains("ULTRA") -> PokemonRarity.ULTRA_RARE
-            normalized.contains("UNCOMMON") -> PokemonRarity.UNCOMMON
-            normalized.contains("COMMON") -> PokemonRarity.COMMON
-            normalized.contains("RARE") -> PokemonRarity.RARE
-            else -> PokemonRarity.UNKNOWN
-        }
     }
 }

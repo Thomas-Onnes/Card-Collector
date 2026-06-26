@@ -4,6 +4,7 @@ import database.Database
 import models.Card
 import models.CardSearchResultResponse
 import java.sql.Connection
+import models.PokemonPriceUpdateCard
 
 class CardRepository {
 
@@ -66,6 +67,45 @@ class CardRepository {
         }
 
         throw IllegalStateException("Card could not be saved")
+    }
+
+    fun findPokemonCardsForPriceUpdate(
+        connection: Connection,
+        limit: Int
+    ): List<PokemonPriceUpdateCard> {
+        val safeLimit = if (limit > 0) limit else 50
+        val cards = mutableListOf<PokemonPriceUpdateCard>()
+
+        val sql = """
+        SELECT
+            c.id,
+            c.external_api_id,
+            p.price_eur
+        FROM cards c
+        INNER JOIN pokemon_cards p ON p.card_id = c.id
+        WHERE c.game_type = 'pokemon'
+        AND c.external_api_id IS NOT NULL
+        ORDER BY p.updated_at ASC, c.id ASC
+        LIMIT ?
+    """.trimIndent()
+
+        connection.prepareStatement(sql).use { statement ->
+            statement.setInt(1, safeLimit)
+
+            statement.executeQuery().use { resultSet ->
+                while (resultSet.next()) {
+                    cards.add(
+                        PokemonPriceUpdateCard(
+                            cardId = resultSet.getInt("id"),
+                            externalApiId = resultSet.getString("external_api_id"),
+                            currentPrice = resultSet.getBigDecimal("price_eur")
+                        )
+                    )
+                }
+            }
+        }
+
+        return cards
     }
 
     fun findAll(connection: Connection): List<Card> {

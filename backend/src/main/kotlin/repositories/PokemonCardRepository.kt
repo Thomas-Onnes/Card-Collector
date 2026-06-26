@@ -3,6 +3,7 @@ package repositories
 import models.PokemonCard
 import models.enums.PokemonRarity
 import java.sql.Connection
+import java.sql.Types
 
 class PokemonCardRepository(
     private val databaseConnection: Connection
@@ -45,6 +46,29 @@ class PokemonCardRepository(
             statement.setString(8, pokemonCard.artist)
             statement.setBigDecimal(9, pokemonCard.priceEur)
             statement.setString(10, pokemonCard.rawJson)
+            statement.executeUpdate()
+        }
+    }
+
+    fun updatePrice(
+        cardId: Int,
+        newPrice: java.math.BigDecimal?
+    ) {
+        val sql = """
+        UPDATE pokemon_cards
+        SET price_eur = ?,
+            updated_at = CURRENT_TIMESTAMP
+        WHERE card_id = ?
+    """.trimIndent()
+
+        databaseConnection.prepareStatement(sql).use { statement ->
+            if (newPrice == null) {
+                statement.setNull(1, Types.NUMERIC)
+            } else {
+                statement.setBigDecimal(1, newPrice)
+            }
+
+            statement.setInt(2, cardId)
             statement.executeUpdate()
         }
     }

@@ -12,8 +12,10 @@ import config.Environment.selectedPokemonSets
 import database.DatabaseSeeder
 import external.scryfall.ScryfallClient
 import external.tcgdex.mapper.TcgDexSetMapper
-import pokemon.import.PokemonImportService
-import pokemon.import.PokemonSetProvider
+import pokemon.PokemonPriceUpdateScheduler
+import pokemon.services.PokemonImportService
+import pokemon.PokemonSetProvider
+import pokemon.services.PokemonPriceUpdateService
 import repositories.MagicTheGatheringCardRepository
 import repositories.MagicTheGatheringSetRepository
 import repositories.PokemonSetRepository
@@ -33,7 +35,7 @@ fun main() {
             migrationRunner.run()
         }
         println(dbSeed)
-        if (dbSeed) {
+        if (!dbSeed) {
             println("Running seeders")
             val databaseSeeder = DatabaseSeeder(connection)
             databaseSeeder.run()
@@ -94,13 +96,26 @@ fun main() {
         pokemonCardRepository = pokemonCardRepository
     )
 
-    val sets = pokemonSetProvider.getSetsToImport()
-    pokemonImportService.import()
-    println("Aantal sets: ${sets.size}")
+    val pokemonPriceUpdateService = PokemonPriceUpdateService(
+        cardRepository = cardRepository,
+        pokemonCardRepository = pokemonCardRepository,
+        tcgDexClient = tcgDexClient
+    )
 
-    sets.forEach {
-        println(it.id)
-    }
+    val pokemonPriceUpdateScheduler = PokemonPriceUpdateScheduler(
+        pokemonPriceUpdateService
+    )
+
+    pokemonPriceUpdateScheduler.start()
+    println("Pokemon price updater started")
+
+//    val sets = pokemonSetProvider.getSetsToImport()
+//    pokemonImportService.import()
+//    println("Aantal sets: ${sets.size}")
+//
+//    sets.forEach {
+//        println(it.id)
+//    }
 
     println("END of the new tested code")
 //    pokemonImportService.import()
@@ -109,5 +124,7 @@ fun main() {
 //    connection.close()
 //
 //    println("Connection closed")
-
+    while (true) {
+        Thread.sleep(1000)
+    }
 }

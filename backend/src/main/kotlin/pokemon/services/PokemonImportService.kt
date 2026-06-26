@@ -1,8 +1,9 @@
-package pokemon.import
+package pokemon.services
 
 import external.tcgdex.TcgDexClient
 import external.tcgdex.mapper.TcgDexCardMapper
 import external.tcgdex.mapper.TcgDexSetMapper
+import pokemon.PokemonSetProvider
 import repositories.CardRepository
 import repositories.PokemonCardRepository
 import repositories.PokemonSetRepository

@@ -13,7 +13,7 @@ services:
       RUN_MIGRATION: ${RUN_MIGRATION:-true}
       SEED_DATABASE: ${SEED_DATABASE:-true}
 
-      IMPORT_ALL_POKEMON_SETS: ${IMPORT_ALL_POKEMON_SETS:-false}
+      IMPORT_ALL_POKEMON_SETS: ${IMPORT_ALL_POKEMON_SETS:-true}
       SELECTED_POKEMON_SETS: ${SELECTED_POKEMON_SETS:-base1,base2,base3,base4,base5}
     depends_on:
       database:

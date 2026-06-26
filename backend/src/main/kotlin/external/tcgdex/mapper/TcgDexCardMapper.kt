@@ -25,16 +25,11 @@ class TcgDexCardMapper {
     }
 
     private fun mapRarity(rarity: String?): PokemonRarity {
-        return when (rarity?.uppercase()) {
-            "COMMON" -> PokemonRarity.COMMON
-            "UNCOMMON" -> PokemonRarity.UNCOMMON
-            "RARE" -> PokemonRarity.RARE
-            "ULTRA_RARE" -> PokemonRarity.ULTRA_RARE
-            "SECRET_RARE" -> PokemonRarity.SECRET_RARE
-
-            else -> {
-                throw IllegalStateException("Unknown rarity: $rarity")
-            }
+        return PokemonRarity.entries.firstOrNull {
+            it.apiValue.equals(rarity, ignoreCase = true)
+        } ?: run {
+            println("Unknown rarity encountered: $rarity")
+            PokemonRarity.UNKNOWN
         }
     }
 

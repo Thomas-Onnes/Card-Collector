@@ -1,7 +1,6 @@
-package pokemon.import
+package pokemon
 
-import config.Environment.importAllPokemonSets
-import config.Environment.selectedPokemonSets
+import config.Environment
 import external.tcgdex.TcgDexClient
 import external.tcgdex.dto.TcgDexSetSummaryDto
 
@@ -11,7 +10,7 @@ class PokemonSetProvider(
 
     fun getSetsToImport(): List<TcgDexSetSummaryDto> {
 
-        return if (importAllPokemonSets) {
+        return if (Environment.importAllPokemonSets) {
             tcgDexClient.getAllSets()
         } else {
             getSelectedSets()
@@ -19,7 +18,7 @@ class PokemonSetProvider(
     }
 
     private fun getSelectedSets(): List<TcgDexSetSummaryDto> {
-        val selectedSets = selectedPokemonSets
+        val selectedSets = Environment.selectedPokemonSets
         println(selectedSets)
         return selectedSets.map { setId ->
             TcgDexSetSummaryDto(

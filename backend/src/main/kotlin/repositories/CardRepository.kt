@@ -1,7 +1,9 @@
 package repositories
 
 import models.Card
+import models.PokemonPriceUpdateCard
 import models.enums.PokemonRarity
+import java.math.BigDecimal
 import java.sql.Connection
 
 class CardRepository(
@@ -18,7 +20,22 @@ class CardRepository(
     )
     VALUES (?, ?, ?, ?)
     RETURNING id
-""".trimIndent()
+    """.trimIndent()
+
+    private val findCardsForPriceUpdateQuery = """
+    SELECT
+        c.id,
+        c.external_api_id,
+        pc.price_eur
+    FROM cards c
+    JOIN pokemon_cards pc
+        ON c.id = pc.card_id
+    WHERE
+        c.game_type = 'Pokemon'
+        AND c.id > ?
+    ORDER BY c.id
+    LIMIT ?
+   """.trimIndent()
 
     fun findAll(): List<Card> {
         val statement = databaseConnection.createStatement()
@@ -54,5 +71,28 @@ class CardRepository(
         statement.close()
 
         return generatedCardId
+    }
+
+    fun findPokemonCardsForPriceUpdate(startId: Int, limit: Int): List<PokemonPriceUpdateCard> {
+        val statement = databaseConnection.prepareStatement(findCardsForPriceUpdateQuery)
+        statement.setInt(1, startId)
+        statement.setInt(2, limit)
+        val result = statement.executeQuery()
+
+        val cards = mutableListOf<PokemonPriceUpdateCard>()
+
+        while (result.next()) {
+            cards.add(
+                PokemonPriceUpdateCard(
+                    cardId = result.getInt("id"),
+                    externalApiId = result.getString("external_api_id"),
+                    currentPrice = result.getBigDecimal("price_eur")
+                )
+            )
+        }
+        result.close()
+        statement.close()
+
+        return cards
     }
 }

@@ -2,6 +2,7 @@ package repositories
 
 import models.PokemonCard
 import models.enums.PokemonRarity
+import java.math.BigDecimal
 import java.sql.Connection
 
 class PokemonCardRepository (
@@ -22,6 +23,14 @@ class PokemonCardRepository (
     raw_json
     )
     VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+    """.trimIndent()
+
+    private val updatePriceQuery = """
+        UPDATE pokemon_cards
+        SET
+            price_eur = ?,
+            updated_at = CURRENT_TIMESTAMP
+        WHERE card_id = ?
     """.trimIndent()
 
     fun findAll(): List<PokemonCard> {
@@ -64,5 +73,15 @@ class PokemonCardRepository (
         statement.close()
 
         return
+    }
+
+    fun updatePrice(cardId: Int, newPrice: BigDecimal?) {
+        val statement = databaseConnection.prepareStatement(updatePriceQuery)
+
+        statement.setObject(1, newPrice)
+        statement.setInt(2, cardId)
+
+        statement.executeUpdate()
+        statement.close()
     }
 }

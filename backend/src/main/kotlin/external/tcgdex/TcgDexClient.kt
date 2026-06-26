@@ -12,7 +12,7 @@ import exceptions.SetNotFoundException
 import external.tcgdex.dto.TcgDexCardResponse
 import external.tcgdex.dto.TcgDexSetDto
 import external.tcgdex.dto.TcgDexSetResponse
-import config.Environment.importAllPokemonSets
+import external.tcgdex.dto.TcgDexSetSummaryDto
 
 class TcgDexClient {
 
@@ -20,17 +20,22 @@ class TcgDexClient {
     private val client = HttpClient.newBuilder().build()
     private val objectMapper = jacksonObjectMapper()
 
-    fun getCard(cardId: String,languageCode: String = "en"): TcgDexCardResponse {
-        val endpoint = "$baseUrl/$languageCode/cards/$cardId"
-
+    private fun getEndpoint(endpoint: String): HttpResponse<String> {
         val request = HttpRequest.newBuilder()
             .uri(URI.create(endpoint))
             .GET()
             .build()
 
-        val response = client.send(
-            request, HttpResponse.BodyHandlers.ofString()
+        return client.send(
+            request,
+            HttpResponse.BodyHandlers.ofString()
         )
+    }
+
+    fun getCard(cardId: String,languageCode: String = "en"): TcgDexCardResponse {
+        val endpoint = "$baseUrl/$languageCode/cards/$cardId"
+
+        val response = getEndpoint(endpoint)
 
         return when (response.statusCode()) {
 
@@ -55,14 +60,7 @@ class TcgDexClient {
     fun getSet(setId: String,languageCode: String = "en"): TcgDexSetResponse {
         val endpoint = "$baseUrl/$languageCode/sets/$setId"
 
-        val request = HttpRequest.newBuilder()
-            .uri(URI.create(endpoint))
-            .GET()
-            .build()
-
-        val response = client.send(
-            request, HttpResponse.BodyHandlers.ofString()
-        )
+        val response = getEndpoint(endpoint)
 
         return when (response.statusCode()) {
 
@@ -78,43 +76,30 @@ class TcgDexClient {
                 )
             }
 
-            404 -> { throw SetNotFoundException("Card is not found")
+            404 -> { throw SetNotFoundException("Set is not found")
             }
 
             else -> { throw IllegalStateException("The API has an issue") }
         }
     }
-//
-//    fun getAllSets(languageCode: String = "en"):List<TcgDexSetResponse> {
-//        val endpoint = "$baseUrl/$languageCode/sets"
-//
-//        val request = HttpRequest.newBuilder()
-//            .uri(URI.create(endpoint))
-//            .GET()
-//            .build()
-//
-//        val response = client.send(
-//            request, HttpResponse.BodyHandlers.ofString()
-//        )
-//
-//        return when (response.statusCode()) {
-//
-//            200 -> {
-//                val responseBody = response.body()
-//                val dto = objectMapper.readValue<List<TcgDexSetDto>>(
-//                    responseBody
-//                )
-//
-//                TcgDexSetResponse(
-//                    dto = dto,
-//                    rawJson = responseBody
-//                )
-//            }
-//
-//            404 -> { throw SetNotFoundException("Card is not found")
-//            }
-//
-//            else -> { throw IllegalStateException("The API has an issue") }
-//        }
-//    }
+
+    fun getAllSets(languageCode: String = "en"):List<TcgDexSetSummaryDto> {
+        val endpoint = "$baseUrl/$languageCode/sets"
+
+        val response = getEndpoint(endpoint)
+
+        return when (response.statusCode()) {
+
+            200 -> {
+              objectMapper.readValue<List<TcgDexSetSummaryDto>>(
+                  response.body()
+              )
+            }
+
+            404 -> { throw SetNotFoundException("No sets found")
+            }
+
+            else -> { throw IllegalStateException("The API has an issue") }
+        }
+    }
 }

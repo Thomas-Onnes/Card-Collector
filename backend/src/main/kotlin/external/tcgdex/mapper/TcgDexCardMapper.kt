@@ -53,7 +53,7 @@ class TcgDexCardMapper {
             id = null,
             tcgDexId = dto.id,
             name = dto.name,
-            series = dto.series,
+            series = dto.series.name,
             releaseDate = dto.releaseDate
         )
     }

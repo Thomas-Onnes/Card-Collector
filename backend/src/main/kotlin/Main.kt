@@ -28,6 +28,7 @@ fun main() {
             val migrationRunner = MigrationRunner(connection)
             migrationRunner.run()
         }
+        println(dbSeed)
         if (dbSeed) {
             println("Running seeders")
             val databaseSeeder = DatabaseSeeder(connection)

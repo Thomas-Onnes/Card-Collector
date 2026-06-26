@@ -19,7 +19,7 @@ class MagicTheGatheringPriceUpdateScheduler(
                     e.printStackTrace()
                 }
             },
-            10,
+            0,
             10,
             TimeUnit.MINUTES
         )

@@ -106,8 +106,8 @@ fun main() {
 //    pokemonImportService.import()
     App(connection).start()
 
-    connection.close()
-
-    println("Connection closed")
+//    connection.close()
+//
+//    println("Connection closed")
 
 }

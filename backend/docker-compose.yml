@@ -14,8 +14,8 @@ services:
       DB_URL: jdbc:postgresql://database:5432/card_collector
       DB_USER: admin
       DB_PASSWORD: ccDB1!
-      RUN_MIGRATIONS: "false"
-      SEED_DATABASE: "false"
+      RUN_MIGRATIONS: "true"
+      SEED_DATABASE: "true"
 
     depends_on:
       database:

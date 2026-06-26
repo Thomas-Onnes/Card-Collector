@@ -10,7 +10,8 @@ object DatabaseSeeder {
         "003_seed_cards.sql",
         "004_seed_collection_cards.sql",
         "005_seed_pokemon_cards.sql",
-        "006_seed_magic_the_gathering_cards.sql"
+        "006_seed_magic_the_gathering_cards.sql",
+        "007_seed_magic_the_gathering_sets.sql"
     )
 
     fun run(connection: Connection) {

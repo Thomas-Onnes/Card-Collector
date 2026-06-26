@@ -36,6 +36,37 @@ class UserCollectionRepository {
         return collections
     }
 
+    fun findOwnedCollection(
+        userId: Int,
+        collectionId: Int
+    ): UserCollectionResponse? {
+        val sql = """
+            SELECT id, collection_name, game_type
+            FROM user_collections
+            WHERE id = ?
+            AND user_id = ?
+        """.trimIndent()
+
+        Database.connect().use { connection ->
+            connection.prepareStatement(sql).use { statement ->
+                statement.setInt(1, collectionId)
+                statement.setInt(2, userId)
+
+                statement.executeQuery().use { resultSet ->
+                    if (resultSet.next()) {
+                        return UserCollectionResponse(
+                            collectionId = resultSet.getInt("id"),
+                            collectionName = resultSet.getString("collection_name"),
+                            gameType = resultSet.getString("game_type")
+                        )
+                    }
+                }
+            }
+        }
+
+        return null
+    }
+
     fun createCollection(
         userId: Int,
         collectionName: String,

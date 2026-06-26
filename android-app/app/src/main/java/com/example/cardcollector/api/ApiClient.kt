@@ -1,5 +1,8 @@
 package com.example.cardcollector.api
 
+import com.example.cardcollector.models.CardSearchResult
+import com.example.cardcollector.models.CollectionCardItem
+import com.example.cardcollector.models.CollectionCardsResponse
 import com.example.cardcollector.models.CollectionItem
 import org.json.JSONArray
 import org.json.JSONObject
@@ -7,6 +10,7 @@ import java.io.BufferedReader
 import java.io.OutputStreamWriter
 import java.net.HttpURLConnection
 import java.net.URL
+import java.net.URLEncoder
 
 object ApiClient {
 
@@ -100,6 +104,105 @@ object ApiClient {
         )
     }
 
+    fun getCollectionCards(
+        token: String,
+        collectionId: Int
+    ): CollectionCardsResponse {
+        val response = request(
+            method = "GET",
+            path = "/collections/$collectionId/cards",
+            token = token
+        )
+
+        return CollectionCardsResponse(
+            cards = parseCollectionCards(response.getJSONArray("cards")),
+            totalPrice = response.optDouble("totalPrice", 0.0)
+        )
+    }
+
+    fun addCardToCollection(
+        token: String,
+        collectionId: Int,
+        cardId: Int,
+        quantity: Int,
+        cardCondition: String,
+        isFoil: Boolean,
+        language: String
+    ): CollectionCardsResponse {
+        val body = JSONObject()
+            .put("cardId", cardId)
+            .put("quantity", quantity)
+            .put("cardCondition", cardCondition)
+            .put("isFoil", isFoil)
+            .put("language", language)
+
+        val response = request(
+            method = "POST",
+            path = "/collections/$collectionId/cards",
+            token = token,
+            body = body
+        )
+
+        return CollectionCardsResponse(
+            cards = parseCollectionCards(response.getJSONArray("cards")),
+            totalPrice = response.optDouble("totalPrice", 0.0)
+        )
+    }
+
+    fun removeCardFromCollection(
+        token: String,
+        collectionId: Int,
+        collectionCardId: Int,
+        quantity: Int
+    ): CollectionCardsResponse {
+        val body = JSONObject()
+            .put("quantity", quantity)
+
+        val response = request(
+            method = "POST",
+            path = "/collections/$collectionId/cards/$collectionCardId/remove",
+            token = token,
+            body = body
+        )
+
+        return CollectionCardsResponse(
+            cards = parseCollectionCards(response.getJSONArray("cards")),
+            totalPrice = response.optDouble("totalPrice", 0.0)
+        )
+    }
+
+    fun searchCards(
+        token: String,
+        gameType: String,
+        name: String = "",
+        setQuery: String = "",
+        collectorNumber: String = "",
+        rarity: String = "",
+        artistOrIllustrator: String = ""
+    ): List<CardSearchResult> {
+        val path = "/cards/search" +
+                "?gameType=${encode(gameType)}" +
+                "&name=${encode(name)}" +
+                "&set=${encode(setQuery)}" +
+                "&collectorNumber=${encode(collectorNumber)}" +
+                "&rarity=${encode(rarity)}" +
+                "&artistOrIllustrator=${encode(artistOrIllustrator)}"
+
+        val response = request(
+            method = "GET",
+            path = path,
+            token = token
+        )
+
+        val array = if (response.has("data")) {
+            response.getJSONArray("data")
+        } else {
+            JSONArray()
+        }
+
+        return parseCardSearchResults(array)
+    }
+
     private fun request(
         method: String,
         path: String,
@@ -107,6 +210,7 @@ object ApiClient {
         body: JSONObject? = null
     ): JSONObject {
         val url = URL(ApiConfig.BASE_URL + path)
+
         val connection = (url.openConnection() as HttpURLConnection).apply {
             requestMethod = method
             connectTimeout = 5_000
@@ -181,6 +285,7 @@ object ApiClient {
 
         for (index in 0 until jsonArray.length()) {
             val item = jsonArray.getJSONObject(index)
+
             collections.add(
                 CollectionItem(
                     collectionId = item.getInt("collectionId"),
@@ -191,5 +296,80 @@ object ApiClient {
         }
 
         return collections
+    }
+
+    private fun parseCardSearchResults(jsonArray: JSONArray): List<CardSearchResult> {
+        val cards = mutableListOf<CardSearchResult>()
+
+        for (index in 0 until jsonArray.length()) {
+            val item = jsonArray.getJSONObject(index)
+
+            cards.add(
+                CardSearchResult(
+                    cardId = item.getInt("cardId"),
+                    gameType = item.getString("gameType"),
+                    name = item.getString("name"),
+                    imageUrl = item.optNullableString("imageUrl"),
+                    setName = item.optNullableString("setName"),
+                    setCode = item.optNullableString("setCode"),
+                    collectorNumber = item.optNullableString("collectorNumber"),
+                    rarity = item.optNullableString("rarity"),
+                    artistOrIllustrator = item.optNullableString("artistOrIllustrator"),
+                    price = item.optNullableDouble("price")
+                )
+            )
+        }
+
+        return cards
+    }
+
+    private fun parseCollectionCards(jsonArray: JSONArray): List<CollectionCardItem> {
+        val cards = mutableListOf<CollectionCardItem>()
+
+        for (index in 0 until jsonArray.length()) {
+            val item = jsonArray.getJSONObject(index)
+
+            cards.add(
+                CollectionCardItem(
+                    collectionCardId = item.getInt("collectionCardId"),
+                    cardId = item.getInt("cardId"),
+                    name = item.getString("name"),
+                    gameType = item.getString("gameType"),
+                    imageUrl = item.optNullableString("imageUrl"),
+                    quantity = item.getInt("quantity"),
+                    cardCondition = item.getString("cardCondition"),
+                    isFoil = item.getBoolean("isFoil"),
+                    language = item.getString("language"),
+                    setName = item.optNullableString("setName"),
+                    setCode = item.optNullableString("setCode"),
+                    collectorNumber = item.optNullableString("collectorNumber"),
+                    rarity = item.optNullableString("rarity"),
+                    artistOrIllustrator = item.optNullableString("artistOrIllustrator"),
+                    price = item.optNullableDouble("price")
+                )
+            )
+        }
+
+        return cards
+    }
+
+    private fun JSONObject.optNullableString(key: String): String? {
+        if (!has(key) || isNull(key)) {
+            return null
+        }
+
+        return optString(key)
+    }
+
+    private fun JSONObject.optNullableDouble(key: String): Double? {
+        if (!has(key) || isNull(key)) {
+            return null
+        }
+
+        return optDouble(key)
+    }
+
+    private fun encode(value: String): String {
+        return URLEncoder.encode(value, Charsets.UTF_8.name())
     }
 }

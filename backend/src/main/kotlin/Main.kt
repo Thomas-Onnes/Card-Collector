@@ -1,4 +1,5 @@
 import api.AuthHandler
+import api.CardsHandler
 import api.CollectionsHandler
 import api.LoginHandler
 import api.LogoutHandler
@@ -38,6 +39,7 @@ fun main() {
     server.createContext("/login", LoginHandler())
     server.createContext("/logout", LogoutHandler())
     server.createContext("/collections", CollectionsHandler())
+    server.createContext("/cards", CardsHandler())
 
     server.executor = Executors.newFixedThreadPool(8)
 

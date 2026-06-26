@@ -41,7 +41,10 @@ services:
       UPDATE_POKEMON_PRICES: "true"
       UPDATE_MAGIC_PRICES: "true"
       PRICE_UPDATE_INITIAL_DELAY_MINUTES: "1"
-      PRICE_UPDATE_INTERVAL_MINUTES: "1"
+      PRICE_UPDATE_INTERVAL_MINUTES: "5"
+
+      MANUAL_CARD_IMPORT_ENABLED: "false"
+      ADMIN_IMPORT_TOKEN: "local admin token"
 
     depends_on:
       database:

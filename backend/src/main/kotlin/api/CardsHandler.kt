@@ -13,6 +13,7 @@ import services.CardImportService
 import services.MagicTheGatheringPriceUpdateService
 import java.net.URLDecoder
 import java.nio.charset.StandardCharsets
+import java.security.MessageDigest
 
 class CardsHandler : HttpHandler {
 
@@ -41,22 +42,42 @@ class CardsHandler : HttpHandler {
                 }
 
                 path == "/cards/import/pokemon" && method == "POST" -> {
+                    if (!requireManualImportAccess(exchange)) {
+                        return
+                    }
+
                     handleImportPokemonSet(exchange)
                 }
 
                 path == "/cards/import/mtg" && method == "POST" -> {
+                    if (!requireManualImportAccess(exchange)) {
+                        return
+                    }
+
                     handleImportMagicSet(exchange)
                 }
 
                 path == "/cards/update-prices/mtg" && method == "POST" -> {
+                    if (!requireManualImportAccess(exchange)) {
+                        return
+                    }
+
                     handleUpdateMagicPrices(exchange)
                 }
 
                 path == "/cards/import/bulk" && method == "POST" -> {
+                    if (!requireManualImportAccess(exchange)) {
+                        return
+                    }
+
                     handleBulkImport(exchange)
                 }
 
                 path == "/cards/update-prices/all" && method == "POST" -> {
+                    if (!requireManualImportAccess(exchange)) {
+                        return
+                    }
+
                     handleUpdateAllPrices(exchange)
                 }
 
@@ -164,7 +185,6 @@ class CardsHandler : HttpHandler {
         }
     }
 
-
     private fun handleBulkImport(exchange: HttpExchange) {
         val queryParams = parseQuery(exchange.requestURI.rawQuery)
 
@@ -228,6 +248,80 @@ class CardsHandler : HttpHandler {
                     )
                 )
             )
+        }
+    }
+
+    private fun requireManualImportAccess(exchange: HttpExchange): Boolean {
+        val manualImportEnabled = envFlag(
+            name = "MANUAL_CARD_IMPORT_ENABLED",
+            defaultValue = false
+        )
+
+        if (!manualImportEnabled) {
+            HttpUtils.sendJson(
+                exchange,
+                403,
+                """{"error":"Manual card import is disabled"}"""
+            )
+            return false
+        }
+
+        val expectedToken = System.getenv("ADMIN_IMPORT_TOKEN")
+            ?.trim()
+
+        if (expectedToken.isNullOrBlank()) {
+            println("Manual card import blocked because ADMIN_IMPORT_TOKEN is not configured")
+
+            HttpUtils.sendJson(
+                exchange,
+                403,
+                """{"error":"Manual card import is not configured"}"""
+            )
+            return false
+        }
+
+        val providedToken = exchange.requestHeaders
+            .getFirst("X-Admin-Import-Token")
+            ?.trim()
+
+        if (!secureEquals(providedToken, expectedToken)) {
+            HttpUtils.sendJson(
+                exchange,
+                403,
+                """{"error":"Forbidden"}"""
+            )
+            return false
+        }
+
+        return true
+    }
+
+    private fun secureEquals(
+        providedValue: String?,
+        expectedValue: String
+    ): Boolean {
+        if (providedValue.isNullOrBlank()) {
+            return false
+        }
+
+        val providedBytes = providedValue.toByteArray(StandardCharsets.UTF_8)
+        val expectedBytes = expectedValue.toByteArray(StandardCharsets.UTF_8)
+
+        return MessageDigest.isEqual(
+            providedBytes,
+            expectedBytes
+        )
+    }
+
+    private fun envFlag(
+        name: String,
+        defaultValue: Boolean
+    ): Boolean {
+        return when (System.getenv(name)?.trim()?.lowercase()) {
+            "true", "1", "yes", "y", "on" -> true
+            "false", "0", "no", "n", "off" -> false
+            null, "" -> defaultValue
+            else -> defaultValue
         }
     }
 

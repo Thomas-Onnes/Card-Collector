@@ -1,0 +1,1 @@
+-- User collections are not seeded because they depend on real registered users.

@@ -1,0 +1,44 @@
+name: Backend CI
+
+on:
+  push:
+  pull_request:
+
+jobs:
+  build-and-quality:
+    runs-on: ubuntu-latest
+
+    defaults:
+      run:
+        working-directory: backend
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up Java
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: 21
+          cache: gradle
+
+      - name: Set up Gradle
+        uses: gradle/actions/setup-gradle@v4
+
+      - name: Make Gradle wrapper executable
+        run: chmod +x ./gradlew
+
+      - name: Run quality tools and build
+        run: ./gradlew clean quality build
+
+      - name: Upload quality reports
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: backend-quality-reports
+          path: |
+            backend/build/reports/detekt
+            backend/build/reports/ktlint
+            backend/build/reports/tests
+          if-no-files-found: ignore

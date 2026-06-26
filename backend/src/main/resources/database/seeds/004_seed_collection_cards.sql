@@ -1,0 +1,1 @@
+-- Collection cards are not seeded because collections are created by registered users.

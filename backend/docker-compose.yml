@@ -1,0 +1,53 @@
+services:
+  # docker compose up -d
+  backend:
+
+    build:
+      context: .
+
+    container_name: CC_backend
+
+    ports:
+      - "8080:8080"
+
+    environment:
+      DB_URL: jdbc:postgresql://database:5432/card_collector
+      DB_USER: admin
+      DB_PASSWORD: ccDB1!
+      RUN_MIGRATIONS: "true"
+      SEED_DATABASE: "true"
+
+    depends_on:
+      database:
+        condition: service_healthy
+    restart: on-failure
+
+  database:
+    # docker compose exec database psql -U admin -d card_collector
+    # \l om alle databases te zien.
+    # \c card_collector om de database te selecteren.
+    # \dt om alle tables te zien.
+    # \d users om de users tabel structuur te bekijken.
+    # \q om eruit te gaan.
+    image: postgres:16-alpine
+    container_name: CC_database
+
+    environment:
+      POSTGRES_DB: card_collector
+      POSTGRES_USER: admin
+      POSTGRES_PASSWORD: ccDB1!
+
+    volumes:
+      - db_data:/var/lib/postgresql/data
+
+    ports:
+      - "5432:5432"
+
+    healthcheck:
+      test: [ "CMD-SHELL", "pg_isready -U admin -d card_collector" ]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+
+volumes:
+  db_data:

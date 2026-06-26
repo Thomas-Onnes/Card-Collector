@@ -1,0 +1,2 @@
+-- Users are not seeded for security reasons.
+-- Create users through the Android app/register endpoint so passwords are hashed correctly.

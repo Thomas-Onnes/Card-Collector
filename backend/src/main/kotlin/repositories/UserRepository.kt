@@ -3,9 +3,9 @@ package repositories
 import database.Database
 import models.User
 
-class UserRepository {
+class UserRepository : UserRepositoryGateway {
 
-    fun findByEmail(email: String): User? {
+    override fun findByEmail(email: String): User? {
         val sql = "SELECT id, username, email, password_hash FROM users WHERE email = ?"
 
         Database.connect().use { connection ->
@@ -28,7 +28,7 @@ class UserRepository {
         return null
     }
 
-    fun findByUsername(username: String): User? {
+    override fun findByUsername(username: String): User? {
         val sql = "SELECT id, username, email, password_hash FROM users WHERE username = ?"
 
         Database.connect().use { connection ->
@@ -51,7 +51,7 @@ class UserRepository {
         return null
     }
 
-    fun createUser(user: User) {
+    override fun createUser(user: User) {
         val sql = """
             INSERT INTO users
             (username, email, password_hash)

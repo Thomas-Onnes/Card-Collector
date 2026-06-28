@@ -33,7 +33,9 @@ dependencies {
     // Needed for the Scryfall and TCGdex API logic from the groupmate project.
     implementation("com.fasterxml.jackson.module:jackson-module-kotlin:2.18.0")
 
-    testImplementation(kotlin("test"))
+    testImplementation(kotlin("test-junit5"))
+    testImplementation("org.junit.jupiter:junit-jupiter:5.10.3")
+    testRuntimeOnly("org.junit.platform:junit-platform-launcher:1.10.3")
 }
 
 detekt {

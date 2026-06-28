@@ -4,16 +4,16 @@ import models.LoginRequest
 import models.LoginResponse
 import models.RegisterRequest
 import models.User
-import repositories.UserRepository
+import repositories.UserRepositoryGateway
 import security.InputValidator
+import security.InvalidCredentialsException
 import security.LoginRateLimiter
 import security.PasswordHasher
 import security.TokenService
-import security.InvalidCredentialsException
 import security.TooManyLoginAttemptsException
 
 class AuthService(
-    private val userRepository: UserRepository
+    private val userRepository: UserRepositoryGateway
 ) {
 
     companion object {

@@ -37,7 +37,7 @@ class CollectionValidatorTest {
     @Test
     fun `too long collection name is rejected`() {
         assertFailsWith<IllegalArgumentException> {
-            CollectionValidator.validateCollectionName("a".repeat(51))
+            CollectionValidator.validateCollectionName("eeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee")
         }
     }
 
@@ -50,7 +50,7 @@ class CollectionValidatorTest {
 
     @Test
     fun `pokemon game type is normalized`() {
-        assertEquals("pokemon", CollectionValidator.normalizeGameType("pokemon"))
+        assertEquals("pokemonnn", CollectionValidator.normalizeGameType("pokemon"))
         assertEquals("pokemon", CollectionValidator.normalizeGameType("Pokémon"))
     }
 

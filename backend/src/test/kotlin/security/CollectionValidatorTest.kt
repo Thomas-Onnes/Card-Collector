@@ -50,7 +50,7 @@ class CollectionValidatorTest {
 
     @Test
     fun `pokemon game type is normalized`() {
-        assertEquals("pokemonnn", CollectionValidator.normalizeGameType("pokemon"))
+        assertEquals("pokemon", CollectionValidator.normalizeGameType("pokemon"))
         assertEquals("pokemon", CollectionValidator.normalizeGameType("Pokémon"))
     }
 
